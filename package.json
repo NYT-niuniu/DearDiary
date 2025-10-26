@@ -1,0 +1,44 @@
+{
+  "name": "dear-diary",
+  "version": "1.0.0",
+  "description": "AI-powered diary assistant with natural language processing and smart reminders",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "jest",
+    "build": "echo 'No build process configured'"
+  },
+  "keywords": [
+    "diary",
+    "ai",
+    "google-ai",
+    "speech-recognition",
+    "todo",
+    "reminders",
+    "natural-language-processing"
+  ],
+  "author": "DECO7281 Project Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "@google/generative-ai": "^0.2.1",
+    "multer": "^1.4.5-lts.1",
+    "sqlite3": "^5.1.6",
+    "node-cron": "^3.0.3",
+    "node-notifier": "^10.0.1",
+    "body-parser": "^1.20.2",
+    "path": "^0.12.7",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

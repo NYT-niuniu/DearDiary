@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dear Diary - Smart Diary Assistant</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航栏 -->
+        <header class="header">
+            <div class="header-nav">
+                <!-- 网站标题 (可点击跳转主页) -->
+                <div class="logo-section">
+                    <a href="#" class="logo-link" data-page="home">
+                        <h1 class="logo">
+                            <i class="fas fa-book-open"></i>
+                            Dear Diary
+                        </h1>
+                    </a>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="main-nav">
+                    <a href="#" class="nav-item" data-page="myDiary">
+                        <i class="fas fa-book"></i>
+                        <span data-i18n="nav_my_diary">My Diary</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="todos">
+                        <i class="fas fa-tasks"></i>
+                        <span data-i18n="nav_todos">Todos</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span data-i18n="nav_settings">Settings</span>
+                    </a>
+                </nav>
+                
+                <!-- 语言切换器 -->
+                <div class="language-switcher">
+                    <button class="lang-toggle-btn" id="langToggleBtn" title="Switch to Chinese">
+                        <span class="flag">🇨🇳</span>
+                        <span class="lang-text">中文</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容区域 (写日记首页) -->
+        <main class="main-content">
+            <!-- 输入区域 -->
+            <section class="input-section">
+                <div class="input-container">
+                    <h2 class="section-title">
+                        <i class="fas fa-microphone"></i>
+                        <span data-i18n="tell_me_your_day">Tell me about your day</span>
+                    </h2>
+                    
+                    <!-- 语音/文本输入 -->
+                    <div class="input-controls">
+                        <div class="input-methods">
+                            <button class="method-btn active" id="voiceInputBtn">
+                                <i class="fas fa-microphone"></i>
+                                <span data-i18n="voice_input">Voice Input</span>
+                            </button>
+                            <button class="method-btn" id="textInputBtn">
+                                <i class="fas fa-keyboard"></i>
+                                <span data-i18n="text_input">Text Input</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 文本输入框 -->
+                    <div class="text-input-area hidden" id="textInputArea">
+                        <textarea 
+                            id="userInput" 
+                            data-i18n-placeholder="input_placeholder"
+                            placeholder="Type your thoughts, what happened today, plans, etc...">
+                            rows="6"
+                        ></textarea>
+                        <div class="input-actions">
+                            <button class="btn btn-secondary" id="clearBtn">
+                                <i class="fas fa-eraser"></i>
+                                <span data-i18n="clear">Clear</span>
+                            </button>
+                            <button class="btn btn-primary" id="processBtn">
+                                <i class="fas fa-magic"></i>
+                                <span data-i18n="generate_diary">Generate Diary</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 语音输入区域 -->
+                    <div class="voice-input-area" id="voiceInputArea">
+                        <div class="voice-controls">
+                            <button class="voice-btn" id="startRecordBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="voice-btn recording hidden" id="stopRecordBtn">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                        </div>
+                        <div class="voice-status" id="voiceStatus" data-i18n="ready_to_record">
+                            Ready to record...
+                        </div>
+                        <div class="transcribed-text" id="transcribedText"></div>
+                        <div class="input-actions">
+                            <button class="btn btn-secondary" id="clearVoiceBtn">
+                                <i class="fas fa-eraser"></i>
+                                <span data-i18n="clear">Clear</span>
+                            </button>
+                            <button class="btn btn-primary" id="processVoiceBtn">
+                                <i class="fas fa-magic"></i>
+                                <span data-i18n="generate_diary">Generate Diary</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 加载指示器 -->
+            <div class="loading-overlay hidden" id="loadingOverlay">
+                <div class="loading-spinner">
+                    <i class="fas fa-sync fa-spin"></i>
+                    <p data-i18n="ai_analyzing">AI is analyzing your content...</p>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <section class="results-section hidden" id="resultsSection">
+                <!-- 日记预览 -->
+                <div class="result-card" id="diaryPreview">
+                    <h3 class="card-title">
+                        <i class="fas fa-book"></i>
+                        <span data-i18n="generated_diary">Generated Diary</span>
+                    </h3>
+                    <div class="diary-content" id="diaryContent">
+                        <!-- 动态生成的日记内容 -->
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" id="editDiaryBtn">
+                            <i class="fas fa-edit"></i>
+                            <span data-i18n="edit_diary">Edit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 待办事项预览 -->
+                <div class="result-card" id="todosPreview">
+                    <h3 class="card-title">
+                        <i class="fas fa-tasks"></i>
+                        <span data-i18n="extracted_todos">Extracted Todos</span>
+                    </h3>
+                    <div class="todos-content" id="todosContent">
+                        <!-- 动态生成的待办事项 -->
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" id="editTodosBtn">
+                            <i class="fas fa-edit"></i>
+                            <span data-i18n="edit_todos">Edit</span>
+                        </button>
+                        <button class="btn btn-primary" id="setRemindersBtn">
+                            <i class="fas fa-bell"></i>
+                            <span data-i18n="set_reminders">Set Reminders</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 确认操作 -->
+                <div class="confirmation-actions">
+                    <button class="btn btn-large btn-secondary" id="discardBtn">
+                        <i class="fas fa-times"></i>
+                        <span data-i18n="discard">Start Over</span>
+                    </button>
+                    <button class="btn btn-large btn-success" id="confirmBtn">
+                        <i class="fas fa-check"></i>
+                        <span data-i18n="confirm_save">Confirm Save</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 我的日记页面 -->
+        <div class="page-container hidden" id="myDiaryPage">
+            <h2 data-i18n="my_diary">My Diary</h2>
+            <div class="diary-list" id="diaryList">
+                <!-- 动态加载日记列表 -->
+            </div>
+        </div>
+
+        <!-- 待办事项页面 -->
+        <div class="page-container hidden" id="todosPage">
+            <h2 data-i18n="my_todos">Todos</h2>
+            <div class="todos-list" id="todosList">
+                <!-- 动态加载待办事项列表 -->
+            </div>
+        </div>
+
+        <div class="page-container hidden" id="settingsPage">
+            <h2 data-i18n="settings_title">Settings</h2>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h3 data-i18n="reminder_settings">Reminder Settings</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="enableReminders" checked>
+                            <span data-i18n="enable_reminders">Enable Reminders</span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <span data-i18n="default_reminder_offset">默认提醒时间提前：</span>
+                            <select id="defaultReminderOffset">
+                                <option value="5" data-i18n="5_minutes">5 minutes</option>
+                                <option value="15" selected data-i18n="15_minutes">15 minutes</option>
+                                <option value="30" data-i18n="30_minutes">30 minutes</option>
+                                <option value="60" data-i18n="1_hour">1 hour</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3 data-i18n="theme_settings">Theme Settings</h3>
+                    <div class="setting-item theme-selector">
+                        <label>
+                            <span data-i18n="choose_theme">Choose Theme:</span>
+                        </label>
+                        <div class="theme-options">
+                            <div class="theme-option selected" data-theme="pink">
+                                <div class="theme-preview pink">
+                                    <div class="color-bar" style="background: #000000;"></div>
+                                    <div class="color-bar" style="background: #fe67c5;"></div>
+                                    <div class="color-bar" style="background: #d33d97;"></div>
+                                    <div class="color-bar" style="background: #f7edeb;"></div>
+                                </div>
+                                <span data-i18n="theme_pink">Pink Theme</span>
+                            </div>
+                            
+                            <div class="theme-option" data-theme="purple">
+                                <div class="theme-preview purple">
+                                    <div class="color-bar" style="background: #10002b;"></div>
+                                    <div class="color-bar" style="background: #7b2cbf;"></div>
+                                    <div class="color-bar" style="background: #c77dff;"></div>
+                                    <div class="color-bar" style="background: #e0aaff;"></div>
+                                </div>
+                                <span data-i18n="theme_purple">Purple Theme</span>
+                            </div>
+                            
+                            <div class="theme-option" data-theme="green">
+                                <div class="theme-preview green">
+                                    <div class="color-bar" style="background: #464e47;"></div>
+                                    <div class="color-bar" style="background: #568259;"></div>
+                                    <div class="color-bar" style="background: #96e6b3;"></div>
+                                    <div class="color-bar" style="background: #f1fffa;"></div>
+                                </div>
+                                <span data-i18n="theme_green">Green Theme</span>
+                            </div>
+                            
+                            <div class="theme-option" data-theme="warm">
+                                <div class="theme-preview warm">
+                                    <div class="color-bar" style="background: #7f5539;"></div>
+                                    <div class="color-bar" style="background: #b08968;"></div>
+                                    <div class="color-bar" style="background: #ddb892;"></div>
+                                    <div class="color-bar" style="background: #ede0d4;"></div>
+                                </div>
+                                <span data-i18n="theme_warm">Warm Theme</span>
+                            </div>
+                            
+                            <div class="theme-option" data-theme="cool">
+                                <div class="theme-preview cool">
+                                    <div class="color-bar" style="background: #0d1b2a;"></div>
+                                    <div class="color-bar" style="background: #415a77;"></div>
+                                    <div class="color-bar" style="background: #778da9;"></div>
+                                    <div class="color-bar" style="background: #e0e1dd;"></div>
+                                </div>
+                                <span data-i18n="theme_cool">Cool Theme</span>
+                            </div>
+                            
+                            <div class="theme-option" data-theme="gray">
+                                <div class="theme-preview gray">
+                                    <div class="color-bar" style="background: #212529;"></div>
+                                    <div class="color-bar" style="background: #495057;"></div>
+                                    <div class="color-bar" style="background: #adb5bd;"></div>
+                                    <div class="color-bar" style="background: #f8f9fa;"></div>
+                                </div>
+                                <span data-i18n="theme_gray">Gray Theme</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3 data-i18n="app_settings">App Settings</h3>
+                    <div class="setting-item">
+                        <button class="btn btn-primary" id="testReminderBtn">
+                            <i class="fas fa-bell"></i>
+                            <span data-i18n="test_reminder">Test Reminder</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+        <div class="modal" id="reminderModal">
+            <div class="modal-header">
+                <h3>Set Reminder Time</h3>
+                <button class="modal-close" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="reminder-form" id="reminderForm">
+                    <!-- 动态生成提醒设置表单 -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelReminderBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveRemindersBtn">Save Reminders</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知组件 -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <i class="notification-icon"></i>
+            <span class="notification-message"></span>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script>
+        // 兼容性检测和自动重定向
+        (function() {
+            var hasRequiredFeatures = true;
+            var missingFeatures = [];
+            
+            // 检查基本功能
+            if (!window.localStorage) {
+                hasRequiredFeatures = false;
+                missingFeatures.push('localStorage');
+            }
+            
+            if (!window.addEventListener) {
+                hasRequiredFeatures = false;
+                missingFeatures.push('addEventListener');
+            }
+            
+            if (!document.querySelector) {
+                hasRequiredFeatures = false;
+                missingFeatures.push('querySelector');
+            }
+            
+            // 检查 JSON 支持
+            if (!window.JSON) {
+                hasRequiredFeatures = false;
+                missingFeatures.push('JSON');
+            }
+            
+            // 如果缺少关键功能，重定向到兼容版本
+            if (!hasRequiredFeatures) {
+                console.warn('缺少必要功能:', missingFeatures);
+                console.log('重定向到兼容版本...');
+                window.location.href = 'fallback.html';
+                return;
+            }
+            
+            // 检查是否强制使用兼容模式
+            if (localStorage.getItem('dearDiary_forceCompatibility') === 'true') {
+                console.log('强制兼容模式，重定向到兼容版本...');
+                window.location.href = 'fallback.html';
+                return;
+            }
+            
+            console.log('浏览器兼容性检查通过，加载完整版本...');
+        })();
+    </script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/speech.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
