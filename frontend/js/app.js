@@ -436,8 +436,9 @@ class DearDiaryApp {
             console.log('API连接正常:', health);
             return true;
         } catch (error) {
-            console.error('API连接失败:', error);
-            Notification.error('无法连接到服务器，某些功能可能不可用');
+            console.warn('API连接失败，将在离线模式下运行:', error);
+            // 设置离线模式标志
+            window.isOfflineMode = true;
             return false;
         }
     }
@@ -532,7 +533,8 @@ class DearDiaryApp {
         } else {
             console.log('页面显示');
             // 页面显示时可以恢复操作或刷新数据
-            if (window.ui) {
+            // 在离线模式下跳过统计数据加载
+            if (window.ui && window.ui.loadStatistics && !window.isOfflineMode) {
                 window.ui.loadStatistics();
             }
         }
