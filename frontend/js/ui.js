@@ -197,6 +197,11 @@ class UIController {
             DOM.hide(this.elements.voiceInputArea);
             this.elements.userInput.focus();
             this.updateProcessButton();
+            
+            // 重新应用i18n到文本框placeholder
+            if (window.i18n) {
+                window.i18n.updateContent();
+            }
         } else {
             DOM.hide(this.elements.textInputArea);
             DOM.show(this.elements.voiceInputArea);

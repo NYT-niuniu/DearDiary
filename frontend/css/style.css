@@ -60,12 +60,12 @@
 [data-theme="purple"] {
     --primary-color: #7b2cbf;
     --primary-dark: #5a189a;
-    --secondary-color: #e0aaff;
+    --secondary-color: #f3e8ff;
     --text-primary: #10002b;
     --text-secondary: #3c096c;
     --text-light: #5a189a;
-    --bg-primary: #e0aaff;
-    --bg-secondary: #c77dff;
+    --bg-primary: #faf5ff;
+    --bg-secondary: #f3e8ff;
     --bg-card: #ffffff;
     --border-color: #9d4edd;
     --shadow-sm: 0 2px 4px rgba(123, 44, 191, 0.1);
@@ -474,6 +474,11 @@ body {
     color: var(--text-primary);
     font-style: italic;
     min-height: 60px;
+    display: none; /* 默认隐藏 */
+}
+
+.transcribed-text:not(:empty) {
+    display: block; /* 有内容时显示 */
 }
 
 /* 按钮样式 */
@@ -515,7 +520,7 @@ body {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, var(--success-color) 0%, #22c55e 100%);
+    background: var(--success-color);
     color: white;
 }
 

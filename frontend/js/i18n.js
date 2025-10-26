@@ -47,6 +47,7 @@ class I18nManager {
                 text_input: '文字输入',
                 voice_input: '语音输入',
                 input_placeholder: '在这里输入你的想法、今天发生的事情、计划等等...',
+                text_input_hint: '分享你的想法、感受和经历。今天发生了什么？你的感受如何？有什么计划？',
                 clear: '清空',
                 generate_diary: '生成日记',
                 
@@ -169,7 +170,8 @@ class I18nManager {
                 tell_me_your_day: 'Tell me about your day',
                 text_input: 'Text Input',
                 voice_input: 'Voice Input',
-                input_placeholder: 'Enter your thoughts, what happened today, plans, etc...',
+                input_placeholder: 'Type your thoughts, what happened today, plans, etc...',
+                text_input_hint: 'Share your thoughts, feelings, and experiences. What happened today? How are you feeling? What are your plans?',
                 clear: 'Clear',
                 generate_diary: 'Generate Diary',
                 
