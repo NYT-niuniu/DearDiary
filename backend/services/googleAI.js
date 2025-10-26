@@ -11,9 +11,9 @@ class GoogleAIService {
     }
 
     /**
-     * 调用 Google AI API
-     * @param {string} prompt - 提示词
-     * @returns {Promise<string>} API响应文本
+     * Call Google AI API
+     * @param {string} prompt - AI prompt
+     * @returns {Promise<string>} API response text
      */
     async callAPI(prompt) {
         const requestBody = {
@@ -47,30 +47,27 @@ class GoogleAIService {
     }
 
     /**
-     * 检测用户输入的语言
-     * @param {string} userInput - 用户输入
-     * @returns {string} 语言代码 (zh/en)
+     * Detect user input language
+     * @param {string} userInput - User input text
+     * @returns {string} Language code (zh/en)
      */
     detectLanguage(userInput) {
-        // 简单的语言检测逻辑
         const chinesePattern = /[\u4e00-\u9fff]/;
         const englishPattern = /[a-zA-Z]/;
         
         const chineseCount = (userInput.match(chinesePattern) || []).length;
         const englishCount = (userInput.match(englishPattern) || []).length;
         
-        // 如果中文字符数量明显多于英文，判断为中文
         if (chineseCount > englishCount * 0.5) {
             return 'zh';
         }
-        // 否则默认为英文
         return 'en';
     }
 
     /**
-     * 获取统一格式的当前日期
-     * @param {string} language - 语言代码
-     * @returns {string} 格式化的日期字符串
+     * Get current date in unified format
+     * @param {string} language - Language code
+     * @returns {string} Formatted date string
      */
     getCurrentDate(language = 'zh') {
         const now = new Date();
@@ -78,27 +75,22 @@ class GoogleAIService {
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
         
-        // 统一使用 YYYY-MM-DD 格式，这样前端可以一致处理
         return `${year}-${month}-${day}`;
     }
 
     /**
-     * 获取当前时间和日期信息，用于AI理解时间上下文
-     * @returns {Object} 包含当前时间信息的对象
+     * Get current time context for AI understanding
+     * @returns {Object} Object containing current time information
      */
     getCurrentTimeContext() {
-        // 使用本地时间而不是UTC时间来避免时区问题
         const now = new Date();
         
-        // 创建明天的日期
         const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
         
-        // 创建下周同一天的日期
         const nextWeek = new Date(now);
         nextWeek.setDate(nextWeek.getDate() + 7);
         
-        // 格式化日期函数
         const formatDate = (date) => {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -109,7 +101,7 @@ class GoogleAIService {
         return {
             current_datetime: now.toISOString(),
             current_date: formatDate(now),
-            current_time: now.toTimeString().slice(0, 5), // HH:MM
+            current_time: now.toTimeString().slice(0, 5),
             current_weekday: now.toLocaleDateString('en-US', { weekday: 'long' }),
             tomorrow_date: formatDate(tomorrow),
             next_week_date: formatDate(nextWeek),
@@ -121,9 +113,9 @@ class GoogleAIService {
     }
 
     /**
-     * 生成格式化的日记内容
-     * @param {string} userInput - 用户的原始输入
-     * @returns {Promise<Object>} 包含日记内容和元数据的对象
+     * Generate formatted diary entry
+     * @param {string} userInput - User's original input
+     * @returns {Promise<Object>} Object containing diary content and metadata
      */
     async generateDiaryEntry(userInput) {
         try {
@@ -132,6 +124,8 @@ class GoogleAIService {
             
             let prompt;
             if (language === 'zh') {
+                // Chinese prompt: Acts as professional diary assistant to convert natural language input into structured diary format
+                // Extracts date, weather, mood, content and reflection in Chinese
                 prompt = `
 作为一个专业的日记助手，请帮我将以下用户的自然语言输入转换成一篇格式化的日记：
 
@@ -167,6 +161,8 @@ class GoogleAIService {
 }
                 `;
             } else {
+                // English prompt: Acts as professional diary assistant to convert natural language input into structured diary format
+                // Extracts date, weather, mood, content and reflection in English
                 prompt = `
 As a professional diary assistant, please help me convert the following user's natural language input into a formatted diary entry:
 
@@ -205,7 +201,6 @@ Please return results in JSON format:
 
             const text = await this.callAPI(prompt);
             
-            // 尝试解析JSON响应
             try {
                 const jsonMatch = text.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
@@ -222,7 +217,6 @@ Please return results in JSON format:
                 console.error('JSON parsing error:', parseError);
             }
             
-            // 如果JSON解析失败，返回原始文本
             return {
                 success: true,
                 data: {
@@ -246,14 +240,9 @@ Please return results in JSON format:
     }
 
     /**
-     * 从用户输入中提取待办事项
-     * @param {string} userInput - 用户的原始输入
-     * @returns {Promise<Object>} 包含待办事项列表的对象
-     */
-    /**
-     * 从用户输入中提取待办事项
-     * @param {string} userInput - 用户的原始输入
-     * @returns {Promise<Object>} 包含待办事项列表的对象
+     * Extract todo items from user input
+     * @param {string} userInput - User's original input
+     * @returns {Promise<Object>} Object containing todo items list
      */
     async extractTodoItems(userInput) {
         try {
@@ -262,6 +251,9 @@ Please return results in JSON format:
             
             let prompt;
             if (language === 'zh') {
+                // Chinese prompt: Extracts todo items from natural language input with intelligent time parsing
+                // Handles relative time expressions, priority assessment, and automatic reminder scheduling
+                // Provides detailed time parsing rules for Chinese temporal expressions
                 prompt = `
 请从以下用户输入中提取待办事项（todo items）：
 
@@ -325,6 +317,8 @@ Please return results in JSON format:
 注意：必须严格按照时间解析规则计算时间，所有时间使用ISO 8601格式。
                 `;
             } else {
+                // English prompt: Extracts todo items from natural language input with intelligent time parsing
+                // Handles relative time expressions, priority assessment, and automatic reminder scheduling
                 prompt = `
 Please extract todo items from the following user input:
 
@@ -372,13 +366,11 @@ Notes: All times must use ISO 8601 format, reminder time should be set reasonabl
 
             const text = await this.callAPI(prompt);
             
-            // 尝试解析JSON响应
             try {
                 const jsonMatch = text.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     const parsedResult = JSON.parse(jsonMatch[0]);
                     
-                    // 为每个todo添加ID和创建时间
                     if (parsedResult.todos && Array.isArray(parsedResult.todos)) {
                         parsedResult.todos = parsedResult.todos.map((todo, index) => ({
                             id: Date.now() + index,
@@ -397,7 +389,6 @@ Notes: All times must use ISO 8601 format, reminder time should be set reasonabl
                 console.error('JSON parsing error:', parseError);
             }
             
-            // 如果JSON解析失败，返回空的待办事项
             return {
                 success: true,
                 data: {
@@ -416,9 +407,9 @@ Notes: All times must use ISO 8601 format, reminder time should be set reasonabl
     }
 
     /**
-     * 优化和改进用户的原始文本输入
-     * @param {string} userInput - 用户输入的原始文本
-     * @returns {Promise<Object>} 优化后的文本
+     * Improve and optimize user's original text input
+     * @param {string} userInput - User's original text input
+     * @returns {Promise<Object>} Optimized text
      */
     async improveText(userInput) {
         try {

@@ -3,7 +3,7 @@ const router = express.Router();
 
 /**
  * GET /api/reminders/status
- * 获取提醒服务状态
+ * Get reminder service status
  */
 router.get('/status', (req, res) => {
     try {
@@ -23,7 +23,7 @@ router.get('/status', (req, res) => {
 
 /**
  * POST /api/reminders/start
- * 启动提醒服务
+ * Start reminder service
  */
 router.post('/start', (req, res) => {
     try {
@@ -43,7 +43,7 @@ router.post('/start', (req, res) => {
 
 /**
  * POST /api/reminders/stop
- * 停止提醒服务
+ * Stop reminder service
  */
 router.post('/stop', (req, res) => {
     try {
@@ -63,7 +63,7 @@ router.post('/stop', (req, res) => {
 
 /**
  * POST /api/reminders/test
- * 发送测试提醒
+ * Send test reminder
  */
 router.post('/test', async (req, res) => {
     try {
@@ -80,7 +80,7 @@ router.post('/test', async (req, res) => {
 
 /**
  * POST /api/reminders/custom
- * 创建自定义提醒
+ * Create custom reminder
  */
 router.post('/custom', async (req, res) => {
     try {
@@ -106,7 +106,7 @@ router.post('/custom', async (req, res) => {
 
 /**
  * GET /api/reminders/pending
- * 获取待提醒的待办事项
+ * Get pending todo reminders
  */
 router.get('/pending', async (req, res) => {
     try {
@@ -127,7 +127,7 @@ router.get('/pending', async (req, res) => {
 
 /**
  * POST /api/reminders/batch-set
- * 批量设置提醒时间
+ * Batch set reminder times
  */
 router.post('/batch-set', async (req, res) => {
     try {
@@ -140,10 +140,10 @@ router.post('/batch-set', async (req, res) => {
             });
         }
 
-        // 获取这些待办事项
+        // Get these todo items
         const todos = [];
         for (const id of todoIds) {
-            // 这里需要添加根据ID获取todo的方法，暂时跳过
+            // TODO: Add method to get todo by ID
             // const todo = await req.db.getTodoById(id);
             // if (todo) todos.push(todo);
         }

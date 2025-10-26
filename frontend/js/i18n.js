@@ -1,47 +1,40 @@
 /**
- * 国际化(i18n)管理器
- * 负责多语言支持和语言切换功能
+ * Internationalization (i18n) Manager
+ * Handles multi-language support and language switching
  */
 class I18nManager {
     constructor() {
-        this.currentLanguage = 'en';  // 默认英文
+        this.currentLanguage = 'en';
         this.translations = {};
         this.loadTranslations();
         this.init();
     }
 
     /**
-     * 初始化国际化管理器
+     * Initialize i18n manager
      */
     init() {
-        // 从本地存储读取语言设置
         const savedLanguage = localStorage.getItem('dearDiary_language');
         if (savedLanguage && this.translations[savedLanguage]) {
             this.currentLanguage = savedLanguage;
         } else {
-            // 默认使用英文
             this.currentLanguage = 'en';
         }
 
-        // 绑定语言切换按钮事件
         this.bindLanguageSwitcher();
-        
-        // 应用当前语言
         this.applyLanguage(this.currentLanguage);
         
-        // 延迟更新语言按钮状态，确保DOM已渲染
         setTimeout(() => {
             this.updateLanguageButtons();
         }, 0);
     }
 
     /**
-     * 加载翻译数据
+     * Load translation data
      */
     loadTranslations() {
         this.translations = {
             zh: {
-                // 基本界面
                 subtitle: '用AI记录生活，智能管理时间',
                 tell_me_your_day: '告诉我你的一天',
                 text_input: '文字输入',
@@ -50,31 +43,21 @@ class I18nManager {
                 text_input_hint: '分享你的想法、感受和经历。今天发生了什么？你的感受如何？有什么计划？',
                 clear: '清空',
                 generate_diary: '生成日记',
-                
-                // 导航菜单
                 nav_home: '主页',
                 nav_write_diary: '写日记',
                 nav_my_diary: '我的日记',
                 nav_diary: '我的日记',
                 nav_todos: '待办事项',
                 nav_settings: '设置',
-                
-                // 页面标题
                 my_diary: '我的日记',
                 my_todos: '待办事项',
-                
-                // 空状态消息
                 no_diary_yet: '还没有写过日记',
                 no_todos_detected: '没有检测到待办事项',
                 no_todos: '没有待办事项',
-                
-                // 侧边栏统计
                 quick_stats: '快速统计',
                 total_diaries: '总日记数',
                 pending_todos: '待办事项',
                 completed_today: '今日完成',
-                
-                // 语音功能
                 start_recording: '点击开始录音',
                 stop_recording: '点击停止录音',
                 ready_to_record: '准备录音...',
@@ -84,13 +67,9 @@ class I18nManager {
                 recording_ended: '录音结束',
                 processing_audio: '处理音频中...',
                 transcribed_placeholder: '您的语音转录文本将出现在这里，可以编辑...',
-                
-                // AI处理
                 ai_analyzing: 'AI正在分析你的内容...',
                 generating_diary: '正在生成日记...',
                 extracting_todos: '正在提取待办事项...',
-                
-                // 结果展示
                 generated_diary: '生成的日记',
                 extracted_todos: '提取的待办事项',
                 edit_diary: '编辑日记',
@@ -101,8 +80,6 @@ class I18nManager {
                 set_reminders: '设置提醒',
                 discard: '放弃',
                 confirm_save: '确认保存',
-                
-                // 日记信息
                 date: '日期',
                 weather: '天气',
                 mood: '心情',
@@ -115,8 +92,6 @@ class I18nManager {
                 close: '关闭',
                 edit: '编辑',
                 loading_diary: '正在加载日记详情...',
-                
-                // 待办事项
                 task: '任务',
                 priority: '优先级',
                 due_date: '截止日期',
@@ -124,26 +99,18 @@ class I18nManager {
                 high_priority: '高',
                 medium_priority: '中',
                 low_priority: '低',
-                
-                // 分类
                 work: '工作',
                 study: '学习',
                 life: '生活',
                 health: '健康',
                 social: '社交',
-                
-                // 提醒
                 reminder_time: '提醒时间',
                 set_reminder: '设置提醒',
                 no_reminder: '不提醒',
                 enable_reminder: '启用提醒',
-                
-                // 状态消息
                 success_save: '保存成功！',
                 error_occurred: '发生错误',
                 loading: '加载中...',
-                
-                // 设置页面
                 settings_title: '设置',
                 reminder_settings: '提醒设置',
                 enable_reminders: '启用提醒功能',
@@ -162,22 +129,11 @@ class I18nManager {
                 theme_gray: '灰色系',
                 app_settings: '应用设置',
                 test_reminder: '测试提醒',
-                
-                // 兼容性
-                browser_compatibility: '浏览器兼容性问题',
-                compatibility_issues: '检测到的问题',
-                your_browser: '你的浏览器信息',
-                browser: '浏览器',
-                version: '版本',
-                user_agent: '用户代理',
-                solutions: '解决方案',
-                update_browser: '更新浏览器（推荐）',
-                use_compatible_version: '使用兼容版本',
-                reload_page: '重新加载页面',
-                enable_compatibility_mode: '启用兼容模式'
+                test_reminder_sent: '测试提醒已发送！',
+                test_reminder_failed: '发送测试提醒失败',
+                test_notification: '测试通知系统：'
             },
             en: {
-                // Basic Interface
                 subtitle: 'Record life with AI, manage time intelligently',
                 tell_me_your_day: 'Tell me about your day',
                 text_input: 'Text Input',
@@ -186,31 +142,21 @@ class I18nManager {
                 text_input_hint: 'Share your thoughts, feelings, and experiences. What happened today? How are you feeling? What are your plans?',
                 clear: 'Clear',
                 generate_diary: 'Generate Diary',
-                
-                // Navigation Menu
                 nav_home: 'Home',
                 nav_write_diary: 'Write Diary',
                 nav_my_diary: 'My Diary',
                 nav_diary: 'My Diary',
                 nav_todos: 'To-Do List',
                 nav_settings: 'Settings',
-                
-                // Page Titles
                 my_diary: 'My Diary',
                 my_todos: 'To-Do List',
-                
-                // Empty State Messages
                 no_diary_yet: 'No diary entries yet',
                 no_todos_detected: 'No todos detected',
                 no_todos: 'No todos',
-                
-                // Sidebar Stats
                 quick_stats: 'Quick Stats',
                 total_diaries: 'Total Diaries',
                 pending_todos: 'Pending Todos',
                 completed_today: 'Completed Today',
-                
-                // Voice Features
                 start_recording: 'Click to start recording',
                 stop_recording: 'Click to stop recording',
                 ready_to_record: 'Ready to record...',
@@ -220,13 +166,9 @@ class I18nManager {
                 recording_ended: 'Recording ended',
                 processing_audio: 'Processing audio...',
                 transcribed_placeholder: 'Your transcribed text will appear here and can be edited...',
-                
-                // AI Processing
                 ai_analyzing: 'AI is analyzing your content...',
                 generating_diary: 'Generating diary...',
                 extracting_todos: 'Extracting todos...',
-                
-                // Results Display
                 generated_diary: 'Generated Diary',
                 extracted_todos: 'Extracted Todos',
                 edit_diary: 'Edit Diary',
@@ -237,8 +179,6 @@ class I18nManager {
                 set_reminders: 'Set Reminders',
                 discard: 'Discard',
                 confirm_save: 'Confirm & Save',
-                
-                // Diary Information
                 date: 'Date',
                 weather: 'Weather',
                 mood: 'Mood',
@@ -251,8 +191,6 @@ class I18nManager {
                 close: 'Close',
                 edit: 'Edit',
                 loading_diary: 'Loading diary details...',
-                
-                // Todos
                 task: 'Task',
                 priority: 'Priority',
                 due_date: 'Due Date',
@@ -260,26 +198,18 @@ class I18nManager {
                 high_priority: 'High',
                 medium_priority: 'Medium',
                 low_priority: 'Low',
-                
-                // Categories
                 work: 'Work',
                 study: 'Study',
                 life: 'Life',
                 health: 'Health',
                 social: 'Social',
-                
-                // Reminders
                 reminder_time: 'Reminder Time',
                 set_reminder: 'Set Reminder',
                 no_reminder: 'No Reminder',
                 enable_reminder: 'Enable Reminder',
-                
-                // Status messages
                 success_save: 'Successfully saved!',
                 error_occurred: 'An error occurred',
                 loading: 'Loading...',
-                
-                // Settings page
                 settings_title: 'Settings',
                 reminder_settings: 'Reminder Settings',
                 enable_reminders: 'Enable reminder notifications',
@@ -298,32 +228,18 @@ class I18nManager {
                 theme_gray: 'Grey Scheme',
                 app_settings: 'Application Settings',
                 test_reminder: 'Test Reminder',
-                
-                // Compatibility
-                browser_compatibility: 'Browser compatibility issues',
-                compatibility_issues: 'Detected Issues',
-                your_browser: 'Your Browser Information',
-                browser: 'Browser',
-                version: 'Version',
-                user_agent: 'User Agent',
-                solutions: 'Solutions',
-                update_browser: 'Update Browser (Recommended)',
-                use_compatible_version: 'Use Compatible Version',
-                reload_page: 'Reload Page',
-                enable_compatibility_mode: 'Enable Compatibility Mode'
+                test_reminder_sent: 'Test reminder sent successfully!',
+                test_reminder_failed: 'Failed to send test reminder',
+                test_notification: 'Test notification system:'
             }
         };
     }
 
-    /**
-     * 绑定语言切换按钮事件
-     */
     bindLanguageSwitcher() {
         const langToggleBtn = document.getElementById('langToggleBtn');
         if (langToggleBtn) {
             langToggleBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                // 切换到另一种语言
                 const newLang = this.currentLanguage === 'en' ? 'zh' : 'en';
                 this.switchLanguage(newLang);
             });
@@ -331,8 +247,8 @@ class I18nManager {
     }
 
     /**
-     * 切换语言
-     * @param {string} language - 语言代码 (zh/en)
+     * Switch language
+     * @param {string} language - Language code (zh/en)
      */
     switchLanguage(language) {
         if (!this.translations[language]) {
@@ -343,29 +259,23 @@ class I18nManager {
         this.currentLanguage = language;
         localStorage.setItem('dearDiary_language', language);
         
-        // 更新语言按钮状态
         this.updateLanguageButtons();
-        
-        // 应用新语言
         this.applyLanguage(language);
         
-        // 更新页面语言属性
         document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en-AU';
         
-        // 触发语言切换事件
         window.dispatchEvent(new CustomEvent('languageChanged', { 
             detail: { language, translations: this.translations[language] }
         }));
     }
 
     /**
-     * 应用语言翻译
-     * @param {string} language - 语言代码
+     * Apply language translations
+     * @param {string} language - Language code
      */
     applyLanguage(language) {
         const translations = this.translations[language];
         
-        // 翻译带有 data-i18n 属性的元素
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
             if (translations[key]) {
@@ -373,7 +283,6 @@ class I18nManager {
             }
         });
 
-        // 翻译 placeholder 属性
         document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
             const key = element.getAttribute('data-i18n-placeholder');
             if (translations[key]) {
@@ -381,7 +290,6 @@ class I18nManager {
             }
         });
 
-        // 翻译 title 属性
         document.querySelectorAll('[data-i18n-title]').forEach(element => {
             const key = element.getAttribute('data-i18n-title');
             if (translations[key]) {
@@ -390,9 +298,6 @@ class I18nManager {
         });
     }
 
-    /**
-     * 更新语言按钮状态
-     */
     updateLanguageButtons() {
         const langToggleBtn = document.getElementById('langToggleBtn');
         if (langToggleBtn) {
@@ -400,12 +305,10 @@ class I18nManager {
             const textSpan = langToggleBtn.querySelector('.lang-text');
             
             if (this.currentLanguage === 'zh') {
-                // 当前是中文，显示英文切换选项
                 flagSpan.textContent = '🇦🇺';
                 textSpan.textContent = 'EN';
                 langToggleBtn.title = 'Switch to English';
             } else {
-                // 当前是英文，显示中文切换选项
                 flagSpan.textContent = '🇨🇳';
                 textSpan.textContent = '中文';
                 langToggleBtn.title = '切换到中文';
@@ -414,40 +317,31 @@ class I18nManager {
     }
 
     /**
-     * 获取当前语言的翻译
-     * @param {string} key - 翻译键
-     * @param {string} defaultText - 默认文本
-     * @returns {string} 翻译后的文本
+     * Get translation for current language
+     * @param {string} key - Translation key
+     * @param {string} defaultText - Default text
+     * @returns {string} Translated text
      */
     t(key, defaultText = '') {
         const translations = this.translations[this.currentLanguage];
         return translations[key] || defaultText || key;
     }
 
-    /**
-     * 获取当前语言
-     * @returns {string} 当前语言代码
-     */
     getCurrentLanguage() {
         return this.currentLanguage;
     }
 
     /**
-     * 动态添加翻译文本
-     * @param {string} key - 翻译键
-     * @param {string} zhText - 中文文本
-     * @param {string} enText - 英文文本
+     * Add translation dynamically
+     * @param {string} key - Translation key
+     * @param {string} zhText - Chinese text
+     * @param {string} enText - English text
      */
     addTranslation(key, zhText, enText) {
         this.translations.zh[key] = zhText;
         this.translations.en[key] = enText;
     }
 
-    /**
-     * 翻译动态内容
-     * @param {HTMLElement} element - 要翻译的元素
-     * @param {string} key - 翻译键
-     */
     translateElement(element, key) {
         const translation = this.t(key);
         if (translation && translation !== key) {
@@ -455,11 +349,6 @@ class I18nManager {
         }
     }
 
-    /**
-     * 批量翻译对象
-     * @param {Object} obj - 包含翻译键的对象
-     * @returns {Object} 翻译后的对象
-     */
     translateObject(obj) {
         const translated = {};
         for (const [key, value] of Object.entries(obj)) {
@@ -473,10 +362,8 @@ class I18nManager {
     }
 }
 
-// 创建全局i18n实例
 window.i18n = new I18nManager();
 
-// 导出类以供其他模块使用
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = I18nManager;
 }

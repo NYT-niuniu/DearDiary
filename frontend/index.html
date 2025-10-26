@@ -9,17 +9,17 @@
 </head>
 <body>
     <div class="container">
-        <!-- 头部导航栏 -->
+        <!-- Header navigation -->
         <header class="header">
             <nav class="header-nav">
-                <!-- 汉堡菜单按钮 (仅在小屏幕显示) -->
+                <!-- Mobile menu toggle -->
                 <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu">
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
                 </button>
                 
-                <!-- 网站标题 (可点击跳转主页) -->
+                <!-- Site logo -->
                 <div class="logo-section">
                     <a href="#" class="logo-link" data-page="home">
                         <h1 class="logo">
@@ -28,9 +28,9 @@
                     </a>
                 </div>
                 
-                <!-- 右侧导航区域 -->
+                <!-- Navigation and language switcher -->
                 <div class="nav-right-section">
-                    <!-- 主导航菜单 -->
+                    <!-- Main navigation menu -->
                     <nav class="main-nav" id="mainNav">
                         <a href="#" class="nav-item" data-page="myDiary">
                             <i class="fas fa-book"></i>
@@ -46,7 +46,7 @@
                         </a>
                     </nav>
                     
-                    <!-- 语言切换器 -->
+                    <!-- Language switcher -->
                     <div class="language-switcher">
                         <button class="lang-toggle-btn" id="langToggleBtn" title="Switch to Chinese">
                             <span class="flag">🇨🇳</span>
@@ -56,9 +56,9 @@
                 </div>
         </header>
 
-        <!-- 主内容区域 (写日记首页) -->
+        <!-- Main content area -->
         <main class="main-content">
-            <!-- 输入区域 -->
+            <!-- Input section -->
             <section class="input-section">
                 <div class="input-container">
                     <h2 class="section-title">
@@ -66,7 +66,7 @@
                         <span data-i18n="tell_me_your_day">Tell me about your day</span>
                     </h2>
                     
-                    <!-- 语音/文本输入 -->
+                    <!-- Voice/text input controls -->
                     <div class="input-controls">
                         <div class="input-methods">
                             <button class="method-btn active" id="voiceInputBtn">
@@ -80,7 +80,7 @@
                         </div>
                     </div>
 
-                    <!-- 文本输入框 -->
+                    <!-- Text input area -->
                     <div class="text-input-area hidden" id="textInputArea">
                         <textarea 
                             id="userInput" 
@@ -99,7 +99,7 @@
                         </div>
                     </div>
 
-                    <!-- 语音输入区域 -->
+                    <!-- Voice input area -->
                     <div class="voice-input-area" id="voiceInputArea">
                         <div class="voice-controls">
                             <button class="voice-btn" id="startRecordBtn">
@@ -132,7 +132,7 @@
                 </div>
             </section>
 
-            <!-- 加载指示器 -->
+            <!-- Loading indicator -->
             <div class="loading-overlay hidden" id="loadingOverlay">
                 <div class="loading-spinner">
                     <i class="fas fa-sync fa-spin"></i>
@@ -140,16 +140,16 @@
                 </div>
             </div>
 
-            <!-- 结果展示区域 -->
+            <!-- Results display -->
             <section class="results-section hidden" id="resultsSection">
-                <!-- 日记预览 -->
+                <!-- Diary preview -->
                 <div class="result-card" id="diaryPreview">
                     <h3 class="card-title">
                         <i class="fas fa-book"></i>
                         <span data-i18n="generated_diary">Generated Diary</span>
                     </h3>
                     <div class="diary-content" id="diaryContent">
-                        <!-- 动态生成的日记内容 -->
+                        <!-- Dynamic diary content -->
                     </div>
                     <div class="card-actions">
                         <button class="btn btn-secondary" id="editDiaryBtn">
@@ -159,14 +159,14 @@
                     </div>
                 </div>
 
-                <!-- 待办事项预览 -->
+                <!-- Todos preview -->
                 <div class="result-card" id="todosPreview">
                     <h3 class="card-title">
                         <i class="fas fa-tasks"></i>
                         <span data-i18n="extracted_todos">Extracted Todos</span>
                     </h3>
                     <div class="todos-content" id="todosContent">
-                        <!-- 动态生成的待办事项 -->
+                        <!-- Dynamic todos content -->
                     </div>
                     <div class="card-actions">
                         <button class="btn btn-secondary" id="editTodosBtn">
@@ -180,7 +180,7 @@
                     </div>
                 </div>
 
-                <!-- 确认操作 -->
+                <!-- Confirmation actions -->
                 <div class="confirmation-actions">
                     <button class="btn btn-large btn-secondary" id="discardBtn">
                         <i class="fas fa-times"></i>
@@ -194,22 +194,23 @@
             </section>
         </main>
 
-        <!-- 我的日记页面 -->
+        <!-- My Diary page -->
         <div class="page-container hidden" id="myDiaryPage">
             <h2 data-i18n="my_diary">My Diary</h2>
             <div class="diary-list" id="diaryList">
-                <!-- 动态加载日记列表 -->
+                <!-- Dynamic diary list -->
             </div>
         </div>
 
-        <!-- 待办事项页面 -->
+        <!-- Todos page -->
         <div class="page-container hidden" id="todosPage">
             <h2 data-i18n="my_todos">Todos</h2>
             <div class="todos-list" id="todosList">
-                <!-- 动态加载待办事项列表 -->
+                <!-- Dynamic todos list -->
             </div>
         </div>
 
+        <!-- Settings page -->
         <div class="page-container hidden" id="settingsPage">
             <h2 data-i18n="settings_title">
                 <i class="fas fa-cog"></i>
@@ -328,7 +329,7 @@
         </div>
     </div>
 
-    <!-- 模态框 -->
+    <!-- Modal overlay -->
     <div class="modal-overlay hidden" id="modalOverlay">
         <div class="modal" id="reminderModal">
             <div class="modal-header">
@@ -339,7 +340,7 @@
             </div>
             <div class="modal-content">
                 <div class="reminder-form" id="reminderForm">
-                    <!-- 动态生成提醒设置表单 -->
+                    <!-- Dynamic reminder form -->
                 </div>
             </div>
             <div class="modal-actions">
@@ -350,53 +351,8 @@
     </div>
 
 
-    <!-- JavaScript文件 -->
-    <script>
-        // 兼容性检测和自动重定向
-        (function() {
-            var hasRequiredFeatures = true;
-            var missingFeatures = [];
-            
-            // 检查基本功能
-            if (!window.localStorage) {
-                hasRequiredFeatures = false;
-                missingFeatures.push('localStorage');
-            }
-            
-            if (!window.addEventListener) {
-                hasRequiredFeatures = false;
-                missingFeatures.push('addEventListener');
-            }
-            
-            if (!document.querySelector) {
-                hasRequiredFeatures = false;
-                missingFeatures.push('querySelector');
-            }
-            
-            // 检查 JSON 支持
-            if (!window.JSON) {
-                hasRequiredFeatures = false;
-                missingFeatures.push('JSON');
-            }
-            
-            // 如果缺少关键功能，重定向到兼容版本
-            if (!hasRequiredFeatures) {
-                console.warn('缺少必要功能:', missingFeatures);
-                console.log('重定向到兼容版本...');
-                window.location.href = 'fallback.html';
-                return;
-            }
-            
-            // 检查是否强制使用兼容模式
-            if (localStorage.getItem('dearDiary_forceCompatibility') === 'true') {
-                console.log('强制兼容模式，重定向到兼容版本...');
-                window.location.href = 'fallback.html';
-                return;
-            }
-            
-            console.log('浏览器兼容性检查通过，加载完整版本...');
-        })();
-    </script>
+
+    <!-- Scripts -->
     <script src="js/i18n.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/speech.js"></script>

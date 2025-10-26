@@ -1,6 +1,6 @@
 /**
- * API服务类
- * 负责与后端API进行通信
+ * API Service Class
+ * Handles communication with backend API
  */
 class APIService {
     constructor(baseURL = '') {
@@ -11,10 +11,10 @@ class APIService {
     }
     
     /**
-     * 发送HTTP请求
-     * @param {string} endpoint - API端点
-     * @param {Object} options - 请求选项
-     * @returns {Promise<Object>} API响应
+     * Send HTTP request
+     * @param {string} endpoint - API endpoint
+     * @param {Object} options - Request options
+     * @returns {Promise<Object>} API response
      */
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
@@ -25,13 +25,12 @@ class APIService {
             ...options
         };
         
-        // 如果有数据且不是GET请求，转换为JSON
         if (config.body && typeof config.body === 'object') {
             config.body = JSON.stringify(config.body);
         }
         
         try {
-            console.log(`API请求: ${config.method} ${url}`, config.body ? JSON.parse(config.body) : null);
+            console.log(`API Request: ${config.method} ${url}`, config.body ? JSON.parse(config.body) : null);
             
             const response = await fetch(url, config);
             const data = await response.json();
@@ -40,17 +39,17 @@ class APIService {
                 throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
             }
             
-            console.log(`API响应: ${config.method} ${url}`, data);
+            console.log(`API Response: ${config.method} ${url}`, data);
             return data;
             
         } catch (error) {
-            console.error(`API错误: ${config.method} ${url}`, error);
+            console.error(`API Error: ${config.method} ${url}`, error);
             throw error;
         }
     }
     
     /**
-     * GET请求
+     * GET request
      */
     async get(endpoint, params = {}) {
         const queryString = new URLSearchParams(params).toString();
@@ -59,7 +58,7 @@ class APIService {
     }
     
     /**
-     * POST请求
+     * POST request
      */
     async post(endpoint, data = {}) {
         return this.request(endpoint, {
@@ -69,7 +68,7 @@ class APIService {
     }
     
     /**
-     * PUT请求
+     * PUT request
      */
     async put(endpoint, data = {}) {
         return this.request(endpoint, {
@@ -79,7 +78,7 @@ class APIService {
     }
     
     /**
-     * DELETE请求
+     * DELETE request
      */
     async delete(endpoint) {
         return this.request(endpoint, {
@@ -87,202 +86,202 @@ class APIService {
         });
     }
     
-    // AI相关API
+    // AI related APIs
     
     /**
-     * 生成日记内容
-     * @param {string} userInput - 用户输入
-     * @returns {Promise<Object>} 日记数据
+     * Generate diary content
+     * @param {string} userInput - User input
+     * @returns {Promise<Object>} Diary data
      */
     async generateDiary(userInput) {
         return this.post('/api/ai/diary', { userInput });
     }
     
     /**
-     * 提取待办事项
-     * @param {string} userInput - 用户输入
-     * @returns {Promise<Object>} 待办事项数据
+     * Extract todo items
+     * @param {string} userInput - User input
+     * @returns {Promise<Object>} Todo data
      */
     async extractTodos(userInput) {
         return this.post('/api/ai/todos', { userInput });
     }
     
     /**
-     * 优化文本
-     * @param {string} userInput - 用户输入
-     * @returns {Promise<Object>} 优化后的文本
+     * Improve text
+     * @param {string} userInput - User input
+     * @returns {Promise<Object>} Improved text
      */
     async improveText(userInput) {
         return this.post('/api/ai/improve', { userInput });
     }
     
     /**
-     * 综合分析用户输入
-     * @param {string} userInput - 用户输入
-     * @returns {Promise<Object>} 分析结果
+     * Analyze user input comprehensively
+     * @param {string} userInput - User input
+     * @returns {Promise<Object>} Analysis results
      */
     async analyzeInput(userInput) {
         return this.post('/api/ai/analyze', { userInput });
     }
     
     /**
-     * 完整处理流程
-     * @param {string} userInput - 用户输入
-     * @returns {Promise<Object>} 处理结果
+     * Complete processing workflow
+     * @param {string} userInput - User input
+     * @returns {Promise<Object>} Processing results
      */
     async processInput(userInput) {
         return this.post('/api/process', { userInput });
     }
     
     /**
-     * 确认并保存数据
-     * @param {Object} diaryData - 日记数据
-     * @param {Object} todoData - 待办事项数据
-     * @param {boolean} confirmed - 是否确认
-     * @returns {Promise<Object>} 保存结果
+     * Confirm and save data
+     * @param {Object} diaryData - Diary data
+     * @param {Object} todoData - Todo data
+     * @param {boolean} confirmed - Whether confirmed
+     * @returns {Promise<Object>} Save results
      */
     async confirmData(diaryData, todoData, confirmed = true) {
         return this.post('/api/confirm', { diaryData, todoData, confirmed });
     }
     
-    // 日记相关API
+    // Diary related APIs
     
     /**
-     * 创建日记条目
-     * @param {Object} diaryData - 日记数据
-     * @returns {Promise<Object>} 创建结果
+     * Create diary entry
+     * @param {Object} diaryData - Diary data
+     * @returns {Promise<Object>} Creation result
      */
     async createDiary(diaryData) {
         return this.post('/api/diary', diaryData);
     }
     
     /**
-     * 获取日记列表
-     * @param {number} limit - 限制数量
-     * @param {number} offset - 偏移量
-     * @returns {Promise<Object>} 日记列表
+     * Get diary list
+     * @param {number} limit - Limit quantity
+     * @param {number} offset - Offset
+     * @returns {Promise<Object>} Diary list
      */
     async getDiaries(limit = 50, offset = 0) {
         return this.get('/api/diary', { limit, offset });
     }
     
     /**
-     * 获取指定日记
-     * @param {number} id - 日记ID
-     * @returns {Promise<Object>} 日记数据
+     * Get specific diary
+     * @param {number} id - Diary ID
+     * @returns {Promise<Object>} Diary data
      */
     async getDiary(id) {
         return this.get(`/api/diary/${id}`);
     }
     
-    // 待办事项相关API
+    // Todo related APIs
     
     /**
-     * 创建待办事项
-     * @param {Object} todoData - 待办事项数据
-     * @returns {Promise<Object>} 创建结果
+     * Create todo item
+     * @param {Object} todoData - Todo data
+     * @returns {Promise<Object>} Creation result
      */
     async createTodo(todoData) {
         return this.post('/api/todos', todoData);
     }
     
     /**
-     * 批量创建待办事项
-     * @param {Array} todos - 待办事项数组
-     * @param {number} diaryEntryId - 关联的日记ID
-     * @returns {Promise<Object>} 创建结果
+     * Batch create todo items
+     * @param {Array} todos - Todo array
+     * @param {number} diaryEntryId - Associated diary ID
+     * @returns {Promise<Object>} Creation result
      */
     async createTodosBatch(todos, diaryEntryId = null) {
         return this.post('/api/todos/batch', { todos, diary_entry_id: diaryEntryId });
     }
     
     /**
-     * 获取待办事项列表
-     * @param {boolean} completed - 是否已完成
-     * @param {number} limit - 限制数量
-     * @returns {Promise<Object>} 待办事项列表
+     * Get todo list
+     * @param {boolean} completed - Whether completed
+     * @param {number} limit - Limit quantity
+     * @returns {Promise<Object>} Todo list
      */
     async getTodos(completed = false, limit = 100) {
         return this.get('/api/todos', { completed, limit });
     }
     
     /**
-     * 完成待办事项
-     * @param {number} id - 待办事项ID
-     * @returns {Promise<Object>} 完成结果
+     * Complete todo item
+     * @param {number} id - Todo ID
+     * @returns {Promise<Object>} Completion result
      */
     async completeTodo(id) {
         return this.put(`/api/todos/${id}/complete`);
     }
     
-    // 提醒相关API
+    // Reminder related APIs
     
     /**
-     * 获取提醒服务状态
-     * @returns {Promise<Object>} 服务状态
+     * Get reminder service status
+     * @returns {Promise<Object>} Service status
      */
     async getReminderStatus() {
         return this.get('/api/reminders/status');
     }
     
     /**
-     * 启动提醒服务
-     * @returns {Promise<Object>} 操作结果
+     * Start reminder service
+     * @returns {Promise<Object>} Operation result
      */
     async startReminderService() {
         return this.post('/api/reminders/start');
     }
     
     /**
-     * 停止提醒服务
-     * @returns {Promise<Object>} 操作结果
+     * Stop reminder service
+     * @returns {Promise<Object>} Operation result
      */
     async stopReminderService() {
         return this.post('/api/reminders/stop');
     }
     
     /**
-     * 发送测试提醒
-     * @returns {Promise<Object>} 操作结果
+     * Send test reminder
+     * @returns {Promise<Object>} Operation result
      */
     async sendTestReminder() {
         return this.post('/api/reminders/test');
     }
     
     /**
-     * 创建自定义提醒
-     * @param {string} title - 提醒标题
-     * @param {string} message - 提醒消息
-     * @param {string} scheduledTime - 计划时间
-     * @returns {Promise<Object>} 创建结果
+     * Create custom reminder
+     * @param {string} title - Reminder title
+     * @param {string} message - Reminder message
+     * @param {string} scheduledTime - Scheduled time
+     * @returns {Promise<Object>} Creation result
      */
     async createCustomReminder(title, message, scheduledTime) {
         return this.post('/api/reminders/custom', { title, message, scheduledTime });
     }
     
     /**
-     * 获取待提醒的事项
-     * @returns {Promise<Object>} 待提醒事项列表
+     * Get pending reminders
+     * @returns {Promise<Object>} Pending reminders list
      */
     async getPendingReminders() {
         return this.get('/api/reminders/pending');
     }
     
     /**
-     * 批量设置提醒
-     * @param {Array} todoIds - 待办事项ID数组
-     * @param {number} offsetMinutes - 提前分钟数
-     * @returns {Promise<Object>} 设置结果
+     * Batch set reminders
+     * @param {Array} todoIds - Todo IDs array
+     * @param {number} offsetMinutes - Advance minutes
+     * @returns {Promise<Object>} Setting result
      */
     async batchSetReminders(todoIds, offsetMinutes = 15) {
         return this.post('/api/reminders/batch-set', { todoIds, offsetMinutes });
     }
     
-    // 健康检查API
+    // Health check API
     
     /**
-     * 获取应用健康状态
-     * @returns {Promise<Object>} 健康状态
+     * Get application health status
+     * @returns {Promise<Object>} Health status
      */
     async getHealth() {
         return this.get('/api/health');
@@ -290,8 +289,8 @@ class APIService {
 }
 
 /**
- * API错误处理包装器
- * 为API调用提供统一的错误处理和加载状态管理
+ * API Error Handling Wrapper
+ * Provides unified error handling and loading state management for API calls
  */
 class APIWrapper {
     constructor(apiService) {
@@ -299,16 +298,16 @@ class APIWrapper {
     }
     
     /**
-     * 包装API调用，提供错误处理和加载状态
-     * @param {Function} apiCall - API调用函数
-     * @param {Object} options - 选项
-     * @returns {Promise<any>} API结果
+     * Wrap API calls with error handling and loading state
+     * @param {Function} apiCall - API call function
+     * @param {Object} options - Options
+     * @returns {Promise<any>} API result
      */
     async execute(apiCall, options = {}) {
         const { 
             showLoading = true,
-            loadingMessage = 'AI正在处理...',
-            errorMessage = '操作失败',
+            loadingMessage = 'AI is processing...',
+            errorMessage = 'Operation failed',
             successMessage = null,
             onSuccess = null,
             onError = null
@@ -332,7 +331,7 @@ class APIWrapper {
             return result;
             
         } catch (error) {
-            console.error('API调用失败:', error);
+            console.error('API call failed:', error);
             
             const message = error.message || errorMessage;
             Notification.error(message);
@@ -350,14 +349,14 @@ class APIWrapper {
         }
     }
     
-    // 包装常用的API方法
+    // Wrap common API methods
     
     async analyzeInput(userInput) {
         return this.execute(
             () => this.api.analyzeInput(userInput),
             {
-                loadingMessage: 'AI正在分析你的内容...',
-                errorMessage: '分析失败，请重试'
+                loadingMessage: 'AI is analyzing your content...',
+                errorMessage: 'Analysis failed, please try again'
             }
         );
     }
@@ -366,8 +365,8 @@ class APIWrapper {
         return this.execute(
             () => this.api.processInput(userInput),
             {
-                loadingMessage: 'AI正在生成日记和提取待办事项...',
-                errorMessage: '处理失败，请重试'
+                loadingMessage: 'AI is generating diary and extracting todos...',
+                errorMessage: 'Processing failed, please try again'
             }
         );
     }
@@ -376,9 +375,9 @@ class APIWrapper {
         return this.execute(
             () => this.api.confirmData(diaryData, todoData, confirmed),
             {
-                loadingMessage: '正在保存数据...',
-                successMessage: '数据保存成功！',
-                errorMessage: '保存失败，请重试'
+                loadingMessage: 'Saving data...',
+                successMessage: 'Data saved successfully!',
+                errorMessage: 'Save failed, please try again'
             }
         );
     }
@@ -388,7 +387,7 @@ class APIWrapper {
             () => this.api.getDiaries(limit, offset),
             {
                 showLoading: false,
-                errorMessage: '获取日记列表失败'
+                errorMessage: 'Failed to get diary list'
             }
         );
     }
@@ -398,7 +397,7 @@ class APIWrapper {
             () => this.api.getTodos(completed, limit),
             {
                 showLoading: false,
-                errorMessage: '获取待办事项失败'
+                errorMessage: 'Failed to get todos'
             }
         );
     }
@@ -408,8 +407,8 @@ class APIWrapper {
             () => this.api.completeTodo(id),
             {
                 showLoading: false,
-                successMessage: '待办事项已完成！',
-                errorMessage: '操作失败，请重试'
+                successMessage: 'Todo completed!',
+                errorMessage: 'Operation failed, please try again'
             }
         );
     }
@@ -419,8 +418,8 @@ class APIWrapper {
             () => this.api.sendTestReminder(),
             {
                 showLoading: false,
-                successMessage: '测试提醒已发送！',
-                errorMessage: '发送测试提醒失败'
+                successMessage: window.i18n.t('test_reminder_sent'),
+                errorMessage: window.i18n.t('test_reminder_failed')
             }
         );
     }
@@ -430,12 +429,12 @@ class APIWrapper {
             () => this.api.getHealth(),
             {
                 showLoading: false,
-                errorMessage: '获取应用状态失败'
+                errorMessage: 'Failed to get application status'
             }
         );
     }
 }
 
-// 创建全局API实例
+// Create global API instances
 window.apiService = new APIService();
 window.api = new APIWrapper(window.apiService);

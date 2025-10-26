@@ -3,7 +3,7 @@ const router = express.Router();
 
 /**
  * POST /api/todos
- * 创建新的待办事项
+ * Create new todo item
  */
 router.post('/', async (req, res) => {
     try {
@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
 
 /**
  * GET /api/todos
- * 获取待办事项列表
+ * Get todo items list
  */
 router.get('/', async (req, res) => {
     try {
@@ -72,7 +72,7 @@ router.get('/', async (req, res) => {
 
 /**
  * PUT /api/todos/:id/complete
- * 标记待办事项为已完成
+ * Mark todo item as completed
  */
 router.put('/:id/complete', async (req, res) => {
     try {
@@ -110,7 +110,7 @@ router.put('/:id/complete', async (req, res) => {
 
 /**
  * POST /api/todos/batch
- * 批量创建待办事项
+ * Batch create todo items
  */
 router.post('/batch', async (req, res) => {
     try {

@@ -6,7 +6,7 @@ const googleAI = new GoogleAIService();
 
 /**
  * POST /api/ai/diary
- * 生成日记内容
+ * Generate diary entry
  */
 router.post('/diary', async (req, res) => {
     try {
@@ -33,7 +33,7 @@ router.post('/diary', async (req, res) => {
 
 /**
  * POST /api/ai/todos
- * 提取待办事项
+ * Extract todo items
  */
 router.post('/todos', async (req, res) => {
     try {
@@ -60,7 +60,7 @@ router.post('/todos', async (req, res) => {
 
 /**
  * POST /api/ai/improve
- * 优化文本
+ * Improve text quality
  */
 router.post('/improve', async (req, res) => {
     try {
@@ -87,7 +87,7 @@ router.post('/improve', async (req, res) => {
 
 /**
  * POST /api/ai/analyze
- * 综合分析用户输入（生成日记+提取待办事项）
+ * Analyze user input (generate diary + extract todos)
  */
 router.post('/analyze', async (req, res) => {
     try {
@@ -102,7 +102,6 @@ router.post('/analyze', async (req, res) => {
 
         const trimmedInput = userInput.trim();
         
-        // 并行执行日记生成和待办事项提取
         const [diaryResult, todoResult] = await Promise.all([
             googleAI.generateDiaryEntry(trimmedInput),
             googleAI.extractTodoItems(trimmedInput)

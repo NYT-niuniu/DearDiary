@@ -4,12 +4,12 @@ const path = require('path');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-// 导入服务和模型
+// Import services and models
 const GoogleAIService = require('./services/googleAI');
 const DatabaseManager = require('./models/database');
 const ReminderService = require('./services/reminder');
 
-// 导入路由
+// Import routes
 const aiRoutes = require('./routes/ai');
 const diaryRoutes = require('./routes/diary');
 const todosRoutes = require('./routes/todos');
@@ -27,36 +27,30 @@ class Server {
     
     async init() {
         try {
-            // 初始化数据库
             this.db = new DatabaseManager();
             await this.setupDatabase();
             
-            // 初始化提醒服务
             this.reminderService = new ReminderService(this.db);
             
-            // 配置中间件
             this.setupMiddleware();
             
-            // 配置路由
             this.setupRoutes();
             
-            // 启动提醒服务
             this.reminderService.start();
             
-            console.log('服务器初始化完成');
+            console.log('Server initialization completed');
             
         } catch (error) {
-            console.error('服务器初始化失败:', error);
+            console.error('Server initialization failed:', error);
             process.exit(1);
         }
     }
     
     async setupDatabase() {
-        // 等待数据库初始化完成
         return new Promise((resolve) => {
             const checkDatabase = () => {
                 if (this.db.db) {
-                    console.log('数据库连接成功');
+                    console.log('Database connection successful');
                     resolve();
                 } else {
                     setTimeout(checkDatabase, 100);
@@ -67,27 +61,22 @@ class Server {
     }
     
     setupMiddleware() {
-        // CORS配置
         this.app.use(cors({
             origin: process.env.NODE_ENV === 'production' ? false : true,
             credentials: true
         }));
         
-        // 解析JSON请求体
         this.app.use(bodyParser.json({ limit: '10mb' }));
         this.app.use(bodyParser.urlencoded({ extended: true }));
         
-        // 静态文件服务
         this.app.use(express.static(path.join(__dirname, '../frontend')));
         
-        // 添加数据库和提醒服务到请求对象
         this.app.use((req, res, next) => {
             req.db = this.db;
             req.reminderService = this.reminderService;
             next();
         });
         
-        // 请求日志
         this.app.use((req, res, next) => {
             console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
             next();
@@ -95,13 +84,12 @@ class Server {
     }
     
     setupRoutes() {
-        // API路由
         this.app.use('/api/ai', aiRoutes);
         this.app.use('/api/diary', diaryRoutes);
         this.app.use('/api/todos', todosRoutes);
         this.app.use('/api/reminders', remindersRoutes);
         
-        // 健康检查
+        // Health check endpoint
         this.app.get('/api/health', async (req, res) => {
             try {
                 const stats = await this.db.getStatistics();
@@ -127,7 +115,7 @@ class Server {
             }
         });
         
-        // 完整处理流程
+        // Complete processing pipeline
         this.app.post('/api/process', async (req, res) => {
             try {
                 const { userInput } = req.body;
@@ -141,7 +129,6 @@ class Server {
                 
                 const googleAI = new GoogleAIService();
                 
-                // 并行分析
                 const [diaryResult, todoResult] = await Promise.all([
                     googleAI.generateDiaryEntry(userInput),
                     googleAI.extractTodoItems(userInput)
@@ -168,7 +155,7 @@ class Server {
             }
         });
         
-        // 确认保存数据
+        // Confirm and save data
         this.app.post('/api/confirm', async (req, res) => {
             try {
                 const { diaryData, todoData, confirmed } = req.body;
@@ -186,23 +173,21 @@ class Server {
                     errors: []
                 };
                 
-                // 保存日记
                 if (diaryData) {
                     try {
                         results.diary = await this.db.saveDiaryEntry(diaryData);
                     } catch (error) {
-                        results.errors.push(`保存日记失败: ${error.message}`);
+                        results.errors.push(`Failed to save diary: ${error.message}`);
                     }
                 }
                 
-                // 保存待办事项
                 if (todoData && todoData.todos && Array.isArray(todoData.todos)) {
                     for (const todo of todoData.todos) {
                         try {
                             const savedTodo = await this.db.saveTodoItem(todo, results.diary?.id);
                             results.todos.push(savedTodo);
                         } catch (error) {
-                            results.errors.push(`保存待办事项失败: ${error.message}`);
+                            results.errors.push(`Failed to save todo: ${error.message}`);
                         }
                     }
                 }
@@ -210,7 +195,7 @@ class Server {
                 res.json({
                     success: results.errors.length === 0,
                     data: results,
-                    message: results.errors.length === 0 ? '数据保存成功' : '部分数据保存失败'
+                    message: results.errors.length === 0 ? 'Data saved successfully' : 'Some data failed to save'
                 });
                 
             } catch (error) {
@@ -222,12 +207,12 @@ class Server {
             }
         });
         
-        // 主页路由
+        // Home route
         this.app.get('/', (req, res) => {
             res.sendFile(path.join(__dirname, '../frontend/index.html'));
         });
         
-        // 404处理
+        // 404 handler
         this.app.use('*', (req, res) => {
             res.status(404).json({
                 success: false,
@@ -235,7 +220,7 @@ class Server {
             });
         });
         
-        // 错误处理中间件
+        // Error handling middleware
         this.app.use((error, req, res, next) => {
             console.error('Server error:', error);
             res.status(500).json({
@@ -248,26 +233,26 @@ class Server {
     start() {
         this.app.listen(this.port, () => {
             console.log(`
-🚀 Dear Diary 服务器启动成功！
+🚀 Dear Diary Server Started Successfully!
 
-📍 访问地址: http://localhost:${this.port}
-🌍 环境模式: ${process.env.NODE_ENV || 'development'}
-🗄️  数据库: ${this.db.dbPath}
-⏰ 提醒服务: ${this.reminderService.isRunning ? '运行中' : '已停止'}
+📍 Access URL: http://localhost:${this.port}
+🌍 Environment: ${process.env.NODE_ENV || 'development'}
+🗄️  Database: ${this.db.dbPath}
+⏰ Reminder Service: ${this.reminderService.isRunning ? 'Running' : 'Stopped'}
 
-💡 使用说明:
-1. 打开浏览器访问 http://localhost:${this.port}
-2. 输入你的一天经历（文字或语音）
-3. AI 会自动生成日记并提取待办事项
-4. 设置提醒时间并保存
+💡 Usage Instructions:
+1. Open browser and visit http://localhost:${this.port}
+2. Enter your daily experiences (text or voice)
+3. AI will automatically generate diary entries and extract todos
+4. Set reminder times and save
 
-🛑 停止服务器: 按 Ctrl+C
+🛑 Stop Server: Press Ctrl+C
             `);
         });
     }
     
     async stop() {
-        console.log('正在关闭服务器...');
+        console.log('Shutting down server...');
         
         if (this.reminderService) {
             this.reminderService.stop();
@@ -277,15 +262,15 @@ class Server {
             this.db.close();
         }
         
-        console.log('服务器已关闭');
+        console.log('Server shut down');
         process.exit(0);
     }
 }
 
-// 创建并启动服务器
+// Create and start server
 const server = new Server();
 
-// 优雅关闭
+// Graceful shutdown
 process.on('SIGINT', () => {
     server.stop();
 });
@@ -294,7 +279,7 @@ process.on('SIGTERM', () => {
     server.stop();
 });
 
-// 启动服务器
+// Start server
 server.start();
 
 module.exports = Server;

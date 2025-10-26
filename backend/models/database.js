@@ -11,10 +11,8 @@ class DatabaseManager {
 
     async init() {
         try {
-            // 确保数据目录存在
             await fs.ensureDir(path.dirname(this.dbPath));
             
-            // 创建数据库连接
             this.db = new sqlite3.Database(this.dbPath, (err) => {
                 if (err) {
                     console.error('Error opening database:', err);
@@ -29,7 +27,6 @@ class DatabaseManager {
     }
 
     createTables() {
-        // 创建日记表
         const createDiaryTable = `
             CREATE TABLE IF NOT EXISTS diary_entries (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +41,6 @@ class DatabaseManager {
             )
         `;
 
-        // 创建待办事项表
         const createTodoTable = `
             CREATE TABLE IF NOT EXISTS todo_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +58,6 @@ class DatabaseManager {
             )
         `;
 
-        // 创建提醒历史表
         const createReminderTable = `
             CREATE TABLE IF NOT EXISTS reminders_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,7 +77,7 @@ class DatabaseManager {
     }
 
     /**
-     * 保存日记条目
+     * Save diary entry
      */
     async saveDiaryEntry(diaryData) {
         return new Promise((resolve, reject) => {
@@ -117,7 +112,7 @@ class DatabaseManager {
     }
 
     /**
-     * 保存待办事项
+     * Save todo item
      */
     async saveTodoItem(todoData, diaryEntryId = null) {
         return new Promise((resolve, reject) => {
@@ -157,7 +152,7 @@ class DatabaseManager {
     }
 
     /**
-     * 获取所有日记条目
+     * Get diary entries
      */
     async getDiaryEntries(limit = 50, offset = 0) {
         return new Promise((resolve, reject) => {
@@ -178,7 +173,7 @@ class DatabaseManager {
     }
 
     /**
-     * 获取待办事项
+     * Get todo items
      */
     async getTodoItems(completed = false, limit = 100) {
         return new Promise((resolve, reject) => {
@@ -207,7 +202,7 @@ class DatabaseManager {
     }
 
     /**
-     * 获取需要提醒的待办事项
+     * Get todos for reminder
      */
     async getTodosForReminder() {
         return new Promise((resolve, reject) => {
@@ -238,7 +233,7 @@ class DatabaseManager {
     }
 
     /**
-     * 标记待办事项为已完成
+     * Mark todo as completed
      */
     async completeTodoItem(todoId) {
         return new Promise((resolve, reject) => {
@@ -259,7 +254,7 @@ class DatabaseManager {
     }
 
     /**
-     * 记录提醒历史
+     * Record reminder sent
      */
     async recordReminderSent(todoId, reminderTime) {
         return new Promise((resolve, reject) => {
@@ -279,7 +274,7 @@ class DatabaseManager {
     }
 
     /**
-     * 获取统计信息
+     * Get statistics
      */
     async getStatistics() {
         return new Promise((resolve, reject) => {
@@ -302,7 +297,7 @@ class DatabaseManager {
     }
 
     /**
-     * 关闭数据库连接
+     * Close database connection
      */
     close() {
         if (this.db) {

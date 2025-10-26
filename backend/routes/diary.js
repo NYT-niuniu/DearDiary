@@ -1,13 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-/**
- * POST /api/diary
- * 创建新的日记条目
- */
+// POST /api/diary
 router.post('/', async (req, res) => {
     try {
-        const { date, weather, mood, content, reflection, raw_input } = req.body;
+        const { date, weather, mood, content, reflection, raw_input, language } = req.body;
         
         if (!content) {
             return res.status(400).json({
@@ -16,10 +13,14 @@ router.post('/', async (req, res) => {
             });
         }
 
+        const isZhCN = language === 'zh' || req.headers['accept-language']?.includes('zh');
+        const defaultWeather = isZhCN ? '未记录' : 'Not recorded';
+        const defaultMood = isZhCN ? '平静' : 'Calm';
+
         const diaryData = {
             date: date || new Date().toLocaleDateString('zh-CN'),
-            weather: weather || '未记录',
-            mood: mood || '平静',
+            weather: weather || defaultWeather,
+            mood: mood || defaultMood,
             content,
             reflection: reflection || '',
             raw_input: raw_input || ''
@@ -41,10 +42,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-/**
- * GET /api/diary
- * 获取日记条目列表
- */
+// GET /api/diary
 router.get('/', async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
@@ -71,10 +69,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-/**
- * GET /api/diary/:id
- * 获取特定日记条目
- */
+// GET /api/diary/:id
 router.get('/:id', async (req, res) => {
     try {
         const entryId = parseInt(req.params.id);
@@ -86,8 +81,7 @@ router.get('/:id', async (req, res) => {
             });
         }
 
-        // 这里需要添加获取单个日记条目的方法
-        // 暂时返回未实现的错误
+        // TODO: Add method to get single diary entry
         res.status(501).json({
             success: false,
             error: 'Feature not implemented yet'

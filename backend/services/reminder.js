@@ -10,7 +10,7 @@ class ReminderService {
     }
 
     /**
-     * 启动提醒服务
+     * Start the reminder service
      */
     start() {
         if (this.isRunning) {
@@ -18,7 +18,6 @@ class ReminderService {
             return;
         }
 
-        // 每分钟检查一次是否有需要提醒的待办事项
         this.cronJob = cron.schedule(process.env.REMINDER_CHECK_INTERVAL || '* * * * *', async () => {
             await this.checkAndSendReminders();
         }, {
@@ -31,7 +30,7 @@ class ReminderService {
     }
 
     /**
-     * 停止提醒服务
+     * Stop the reminder service
      */
     stop() {
         if (this.cronJob) {
@@ -43,7 +42,7 @@ class ReminderService {
     }
 
     /**
-     * 检查并发送提醒
+     * Check for pending reminders and send notifications
      */
     async checkAndSendReminders() {
         try {
@@ -51,7 +50,6 @@ class ReminderService {
             
             for (const todo of todosToRemind) {
                 await this.sendReminder(todo);
-                // 记录提醒已发送
                 await this.db.recordReminderSent(todo.id, todo.reminder_time);
             }
 
@@ -64,18 +62,17 @@ class ReminderService {
     }
 
     /**
-     * 发送单个提醒
+     * Send individual reminder notification
      */
     async sendReminder(todo) {
         try {
-            const title = '📝 Dear Diary 提醒';
+            const title = '📝 Dear Diary Reminder';
             const message = this.formatReminderMessage(todo);
             
-            // 桌面通知
             notifier.notify({
                 title: title,
                 message: message,
-                icon: path.join(__dirname, '../../frontend/assets/icon.png'), // 需要添加图标文件
+                icon: path.join(__dirname, '../../frontend/assets/icon.png'),
                 sound: true,
                 wait: true,
                 timeout: 10
@@ -87,9 +84,6 @@ class ReminderService {
                 }
             });
 
-            // 如果是Web环境，也可以通过WebSocket发送实时通知
-            // 这里可以扩展WebSocket功能
-            
             console.log(`Reminder sent for todo: ${todo.title}`);
         } catch (error) {
             console.error('Error sending reminder:', error);
@@ -97,13 +91,13 @@ class ReminderService {
     }
 
     /**
-     * 格式化提醒消息
+     * Format reminder message with todo details
      */
     formatReminderMessage(todo) {
-        let message = `⏰ 待办提醒：${todo.title}`;
+        let message = `⏰ Todo Reminder: ${todo.title}`;
         
         if (todo.description) {
-            message += `\n📄 描述：${todo.description}`;
+            message += `\n📄 Description: ${todo.description}`;
         }
         
         if (todo.due_time) {
@@ -113,34 +107,33 @@ class ReminderService {
             const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
             
             if (daysDiff === 0) {
-                message += `\n🚨 今天截止`;
+                message += `\n🚨 Due today`;
             } else if (daysDiff === 1) {
-                message += `\n📅 明天截止`;
+                message += `\n📅 Due tomorrow`;
             } else if (daysDiff > 1) {
-                message += `\n📅 ${daysDiff}天后截止`;
+                message += `\n📅 Due in ${daysDiff} days`;
             } else {
-                message += `\n⚠️ 已过期${Math.abs(daysDiff)}天`;
+                message += `\n⚠️ Overdue by ${Math.abs(daysDiff)} days`;
             }
         }
         
-        // 添加优先级标识
         const priorityEmoji = {
             'high': '🔴',
             'medium': '🟡',
             'low': '🟢'
         };
-        message += `\n${priorityEmoji[todo.priority] || '🟡'} 优先级：${todo.priority}`;
+        message += `\n${priorityEmoji[todo.priority] || '🟡'} Priority: ${todo.priority}`;
         
         return message;
     }
 
     /**
-     * 手动发送测试提醒
+     * Send test reminder for debugging
      */
     async sendTestReminder() {
         const testTodo = {
             id: 0,
-            title: '这是一个测试提醒',
+            title: '测试通知系统',
             description: '测试Dear Diary提醒功能是否正常工作',
             priority: 'medium',
             due_time: new Date().toISOString(),
@@ -152,7 +145,7 @@ class ReminderService {
     }
 
     /**
-     * 创建自定义提醒
+     * Create custom reminder with specified time
      */
     async createCustomReminder(title, message, scheduledTime) {
         try {
@@ -163,14 +156,12 @@ class ReminderService {
                 throw new Error('Scheduled time must be in the future');
             }
 
-            // 计算延迟时间（毫秒）
             const delay = targetTime.getTime() - now.getTime();
             
-            // 使用setTimeout设置一次性提醒
             setTimeout(() => {
                 notifier.notify({
-                    title: title || '📝 Dear Diary 自定义提醒',
-                    message: message || '您有一个自定义提醒',
+                    title: title || '📝 Dear Diary Custom Reminder',
+                    message: message || 'You have a custom reminder',
                     icon: path.join(__dirname, '../../frontend/assets/icon.png'),
                     sound: true,
                     wait: true,
@@ -192,7 +183,7 @@ class ReminderService {
     }
 
     /**
-     * 获取服务状态
+     * Get service status and configuration
      */
     getStatus() {
         return {
@@ -203,7 +194,7 @@ class ReminderService {
     }
 
     /**
-     * 批量设置提醒时间
+     * Batch set reminder times for multiple todos
      */
     async batchSetReminders(todos, defaultOffset = 15) {
         const results = [];
@@ -213,17 +204,14 @@ class ReminderService {
                 let reminderTime;
                 
                 if (todo.due_time) {
-                    // 如果有截止时间，设置为截止时间前N分钟提醒
                     const dueDate = new Date(todo.due_time);
                     reminderTime = new Date(dueDate.getTime() - (defaultOffset * 60 * 1000));
                 } else {
-                    // 如果没有截止时间，设置为明天同一时间提醒
                     const tomorrow = new Date();
                     tomorrow.setDate(tomorrow.getDate() + 1);
                     reminderTime = tomorrow;
                 }
 
-                // 更新数据库中的提醒时间
                 await this.db.db.run(
                     'UPDATE todo_items SET reminder_time = ? WHERE id = ?',
                     [reminderTime.toISOString(), todo.id]

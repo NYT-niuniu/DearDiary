@@ -1,6 +1,5 @@
 /**
- * UI控制器
- * 负责管理用户界面的显示和交互
+ * UI Controller - manages user interface display and interactions
  */
 class UIController {
     constructor() {
@@ -14,27 +13,22 @@ class UIController {
         this.init();
     }
     
-    /**
-     * 初始化UI控制器
-     */
     init() {
         this.initElements();
         this.bindEvents();
         this.setupNavigation();
-        this.switchInputMethod('voice'); // 默认语音输入
-        this.loadSettings(); // 加载设置
+        this.switchInputMethod('voice');
+        this.loadSettings();
     }
     
-    /**
-     * 初始化DOM元素引用
-     */
+    // Initialize DOM element references
     initElements() {
         this.elements = {
-            // 导航相关
+            // Navigation
             hamburgerBtn: document.getElementById('hamburgerBtn'),
             mainNav: document.getElementById('mainNav'),
             
-            // 输入相关
+            // Input controls
             textInputBtn: document.getElementById('textInputBtn'),
             voiceInputBtn: document.getElementById('voiceInputBtn'),
             textInputArea: document.getElementById('textInputArea'),
@@ -45,19 +39,19 @@ class UIController {
             clearVoiceBtn: document.getElementById('clearVoiceBtn'),
             processVoiceBtn: document.getElementById('processVoiceBtn'),
             
-            // 结果显示
+            // Results display
             resultsSection: document.getElementById('resultsSection'),
             diaryContent: document.getElementById('diaryContent'),
             todosContent: document.getElementById('todosContent'),
             
-            // 操作按钮
+            // Action buttons
             editDiaryBtn: document.getElementById('editDiaryBtn'),
             editTodosBtn: document.getElementById('editTodosBtn'),
             setRemindersBtn: document.getElementById('setRemindersBtn'),
             discardBtn: document.getElementById('discardBtn'),
             confirmBtn: document.getElementById('confirmBtn'),
             
-            // 导航
+            // Navigation and pages
             navItems: document.querySelectorAll('.nav-item'),
             mainContent: document.querySelector('.main-content'),
             pages: {
@@ -66,11 +60,11 @@ class UIController {
                 settings: document.getElementById('settingsPage')
             },
             
-            // 列表
+            // Lists
             diaryList: document.getElementById('diaryList'),
             todosList: document.getElementById('todosList'),
             
-            // 模态框
+            // Modals
             modalOverlay: document.getElementById('modalOverlay'),
             reminderModal: document.getElementById('reminderModal'),
             reminderForm: document.getElementById('reminderForm'),
@@ -78,29 +72,26 @@ class UIController {
             cancelReminderBtn: document.getElementById('cancelReminderBtn'),
             saveRemindersBtn: document.getElementById('saveRemindersBtn'),
             
-            // 设置
+            // Settings
             enableReminders: document.getElementById('enableReminders'),
             defaultReminderOffset: document.getElementById('defaultReminderOffset'),
             testReminderBtn: document.getElementById('testReminderBtn')
         };
     }
     
-    /**
-     * 绑定事件监听器
-     */
+    // Bind event listeners
     bindEvents() {
-        // 汉堡菜单切换
+        // Mobile menu toggle
         if (this.elements.hamburgerBtn && this.elements.mainNav) {
             this.elements.hamburgerBtn.addEventListener('click', () => this.toggleMobileMenu());
             
-            // 点击导航链接后关闭菜单
             const navItems = this.elements.mainNav.querySelectorAll('.nav-item');
             navItems.forEach(item => {
                 item.addEventListener('click', () => this.closeMobileMenu());
             });
         }
         
-        // 点击页面其他地方关闭菜单
+        // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (this.elements.hamburgerBtn && this.elements.mainNav) {
                 if (!this.elements.hamburgerBtn.contains(e.target) && 
@@ -110,12 +101,12 @@ class UIController {
             }
         });
         
-        // 语言切换监听
+        // Language change listener
         window.addEventListener('languageChanged', (e) => {
             this.onLanguageChanged(e.detail);
         });
         
-        // 输入方法切换
+        // Input method switching
         if (this.elements.textInputBtn) {
             this.elements.textInputBtn.addEventListener('click', () => this.switchInputMethod('text'));
         }
@@ -123,7 +114,7 @@ class UIController {
             this.elements.voiceInputBtn.addEventListener('click', () => this.switchInputMethod('voice'));
         }
         
-        // 操作按钮
+        // Action buttons
         if (this.elements.clearBtn) {
             this.elements.clearBtn.addEventListener('click', () => this.clearInput());
         }
@@ -137,7 +128,7 @@ class UIController {
             this.elements.processVoiceBtn.addEventListener('click', () => this.processVoiceInput());
         }
         
-        // 结果操作
+        // Result actions
         if (this.elements.editDiaryBtn) {
             this.elements.editDiaryBtn.addEventListener('click', () => this.editDiary());
         }
@@ -154,7 +145,7 @@ class UIController {
             this.elements.confirmBtn.addEventListener('click', () => this.confirmResults());
         }
         
-        // 模态框
+        // Modal events
         if (this.elements.closeModalBtn) {
             this.elements.closeModalBtn.addEventListener('click', () => this.closeModal());
         }
@@ -172,12 +163,11 @@ class UIController {
             });
         }
         
-        // 设置
+        // Settings events
         if (this.elements.testReminderBtn) {
             this.elements.testReminderBtn.addEventListener('click', () => this.sendTestReminder());
         }
         
-        // 提醒设置事件监听
         if (this.elements.enableReminders) {
             this.elements.enableReminders.addEventListener('change', () => this.saveReminderSettings());
         }
@@ -185,7 +175,7 @@ class UIController {
             this.elements.defaultReminderOffset.addEventListener('change', () => this.saveReminderSettings());
         }
         
-        // 输入框事件
+        // Input field events
         if (this.elements.userInput) {
             this.elements.userInput.addEventListener('input', debounce(() => {
                 this.updateProcessButton();
@@ -193,11 +183,9 @@ class UIController {
         }
     }
     
-    /**
-     * 设置导航
-     */
+    // Setup navigation events
     setupNavigation() {
-        // 导航项点击事件
+        // Navigation item click events
         this.elements.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -206,7 +194,7 @@ class UIController {
             });
         });
         
-        // Logo点击事件
+        // Logo click event
         const logoLink = document.querySelector('.logo-link');
         if (logoLink) {
             logoLink.addEventListener('click', (e) => {
@@ -217,9 +205,7 @@ class UIController {
         }
     }
     
-    /**
-     * 切换移动端菜单显示/隐藏
-     */
+    // Mobile menu methods
     toggleMobileMenu() {
         if (this.elements.hamburgerBtn && this.elements.mainNav) {
             this.elements.hamburgerBtn.classList.toggle('active');
@@ -227,9 +213,6 @@ class UIController {
         }
     }
     
-    /**
-     * 关闭移动端菜单
-     */
     closeMobileMenu() {
         if (this.elements.hamburgerBtn && this.elements.mainNav) {
             this.elements.hamburgerBtn.classList.remove('active');
@@ -237,22 +220,17 @@ class UIController {
         }
     }
     
-    /**
-     * 切换输入方法
-     */
+    // Input method switching
     switchInputMethod(method) {
-        // 更新按钮状态
         this.elements.textInputBtn.classList.toggle('active', method === 'text');
         this.elements.voiceInputBtn.classList.toggle('active', method === 'voice');
         
-        // 切换输入区域
         if (method === 'text') {
             DOM.show(this.elements.textInputArea);
             DOM.hide(this.elements.voiceInputArea);
             this.elements.userInput.focus();
             this.updateProcessButton();
             
-            // 重新应用i18n到文本框placeholder
             if (window.i18n) {
                 window.i18n.updateContent();
             }
@@ -263,39 +241,29 @@ class UIController {
         }
     }
     
-    /**
-     * 清空输入
-     */
+    // Input management methods
     clearInput() {
         if (this.elements.userInput) {
             this.elements.userInput.value = '';
             this.updateProcessButton();
         }
         
-        // 清空语音转录结果
         if (window.speechManager) {
             const transcribedText = document.getElementById('transcribedText');
             if (transcribedText) {
                 transcribedText.value = '';
-                // 确保移除录音状态类，显示placeholder
                 transcribedText.classList.remove('recording');
             }
         }
     }
     
-    /**
-     * 清空语音输入
-     */
     clearVoiceInput() {
-        // 清空语音转录结果
         const transcribedText = document.getElementById('transcribedText');
         if (transcribedText) {
             transcribedText.value = '';
-            // 确保移除录音状态类，显示placeholder
             transcribedText.classList.remove('recording');
         }
         
-        // 重置语音状态
         if (window.speechManager) {
             window.speechManager.reset();
         }
@@ -303,15 +271,13 @@ class UIController {
         this.updateVoiceProcessButton();
     }
     
-    /**
-     * 处理语音输入
-     */
+    // Voice input processing
     async processVoiceInput() {
         const transcribedText = document.getElementById('transcribedText');
         const input = transcribedText?.value?.trim();
         
         if (!input) {
-            Notification.warning('请先录音或输入一些内容');
+            Notification.warning('Please record or input some content first');
             return;
         }
         
@@ -322,19 +288,17 @@ class UIController {
             if (response.success) {
                 this.displayResults(response.data);
             } else {
-                Notification.error(response.message || 'AI分析失败');
+                Notification.error(response.message || 'AI analysis failed');
             }
         } catch (error) {
-            console.error('处理语音输入失败:', error);
-            Notification.error('处理失败，请重试');
+            console.error('Failed to process voice input:', error);
+            Notification.error('Processing failed, please try again');
         } finally {
             DOM.hide(this.elements.loadingOverlay);
         }
     }
     
-    /**
-     * 更新语音处理按钮状态
-     */
+    // Button state management
     updateVoiceProcessButton() {
         if (this.elements.processVoiceBtn) {
             const transcribedText = document.getElementById('transcribedText');
@@ -343,9 +307,6 @@ class UIController {
         }
     }
     
-    /**
-     * 更新处理按钮状态
-     */
     updateProcessButton() {
         if (this.elements.processBtn && this.elements.userInput) {
             const hasInput = !isEmpty(this.elements.userInput.value);
@@ -353,13 +314,11 @@ class UIController {
         }
     }
     
-    /**
-     * 处理用户输入
-     */
+    // Text input processing
     async processInput() {
         const input = this.elements.userInput?.value?.trim();
         if (!input) {
-            Notification.warning('请输入一些内容');
+            Notification.warning('Please input some content');
             return;
         }
         
@@ -369,39 +328,30 @@ class UIController {
             if (result.success) {
                 this.displayResults(result.data);
             } else {
-                Notification.error('处理失败，请重试');
+                Notification.error('Processing failed, please try again');
             }
         } catch (error) {
-            console.error('处理输入失败:', error);
+            console.error('Failed to process input:', error);
         }
     }
     
-    /**
-     * 显示分析结果
-     */
+    // Results display methods
     displayResults(data) {
         this.currentData = data;
         
-        // 显示日记内容
         if (data.diary) {
             this.renderDiary(data.diary);
         }
         
-        // 显示待办事项
         if (data.todos && data.todos.todos) {
             this.renderTodos(data.todos.todos);
         }
         
-        // 显示结果区域
         DOM.show(this.elements.resultsSection);
         
-        // 滚动到结果区域
         this.elements.resultsSection.scrollIntoView({ behavior: 'smooth' });
     }
     
-    /**
-     * 渲染日记内容
-     */
     renderDiary(diary) {
         if (!this.elements.diaryContent) return;
         
@@ -436,15 +386,11 @@ class UIController {
         this.elements.diaryContent.innerHTML = html;
     }
     
-    /**
-     * 渲染待办事项
-     */
     renderTodos(todos) {
         if (!this.elements.todosContent) return;
         
         if (!todos || todos.length === 0) {
             this.elements.todosContent.innerHTML = '<p class="text-center" data-i18n="no_todos_detected">No todos detected</p>';
-            // 确保国际化系统更新这个新添加的元素
             if (window.i18n) {
                 window.i18n.updateContent();
             }
@@ -469,111 +415,93 @@ class UIController {
         this.elements.todosContent.innerHTML = html;
     }
     
-    /**
-     * 编辑日记
-     */
+    // Diary editing methods
     editDiary() {
         const diaryContent = document.getElementById('diaryContent');
         const editDiaryBtn = document.getElementById('editDiaryBtn');
         
         if (!diaryContent || !editDiaryBtn) {
-            Notification.error('未找到日记内容区域');
+            Notification.error('Diary content area not found');
             return;
         }
 
-        // 检查当前是否已经在编辑模式
         if (diaryContent.classList.contains('editing')) {
             this.saveDiary();
             return;
         }
 
-        // 进入编辑模式
         const currentContent = diaryContent.innerHTML;
         const plainText = diaryContent.innerText || diaryContent.textContent || '';
         
         diaryContent.classList.add('editing');
         diaryContent.innerHTML = `
             <div class="diary-editor">
-                <textarea id="diaryEditor" class="form-control diary-textarea" rows="8" placeholder="${window.i18n.t('edit_diary_placeholder', '编辑您的日记内容...')}">${plainText.trim()}</textarea>
+                <textarea id="diaryEditor" class="form-control diary-textarea" rows="8" placeholder="${window.i18n.t('edit_diary_placeholder', 'Edit your diary content...')}">${plainText.trim()}</textarea>
                 <div class="editor-actions mt-3">
                     <button class="btn btn-primary" onclick="window.ui.saveDiary()">
                         <i class="fas fa-save"></i>
-                        <span data-i18n="save">保存</span>
+                        <span data-i18n="save">Save</span>
                     </button>
                     <button class="btn btn-secondary ms-2" onclick="window.ui.cancelEditDiary()">
                         <i class="fas fa-times"></i>
-                        <span data-i18n="cancel">取消</span>
+                        <span data-i18n="cancel">Cancel</span>
                     </button>
                 </div>
             </div>
         `;
 
-        // 更新编辑按钮
         editDiaryBtn.innerHTML = `
             <i class="fas fa-save"></i>
-            <span data-i18n="save">保存</span>
+            <span data-i18n="save">Save</span>
         `;
 
-        // 聚焦到编辑器
         const editor = document.getElementById('diaryEditor');
         if (editor) {
             editor.focus();
-            // 将光标移到文本末尾
             editor.setSelectionRange(editor.value.length, editor.value.length);
         }
 
-        // 存储原始内容，以便取消时恢复
         diaryContent.dataset.originalContent = currentContent;
 
-        Notification.success('进入编辑模式');
+        Notification.success('Editing mode enabled');
     }
 
-    /**
-     * 保存日记编辑
-     */
     saveDiary() {
         const diaryContent = document.getElementById('diaryContent');
         const editDiaryBtn = document.getElementById('editDiaryBtn');
         const editor = document.getElementById('diaryEditor');
         
         if (!diaryContent || !editor) {
-            Notification.error('编辑器未找到');
+            Notification.error('Editor not found');
             return;
         }
 
         const newContent = editor.value.trim();
         if (!newContent) {
-            Notification.error('日记内容不能为空');
+            Notification.error('Diary content cannot be empty');
             return;
         }
 
-        // 退出编辑模式
         diaryContent.classList.remove('editing');
         
-        // 将换行符转换为HTML格式并保持格式
         const formattedContent = newContent
-            .replace(/\n\n/g, '</p><p>')  // 双换行转为段落
-            .replace(/\n/g, '<br>')       // 单换行转为换行
-            .replace(/^/, '<p>')          // 开头加段落
-            .replace(/$/, '</p>');        // 结尾加段落
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>')
+            .replace(/^/, '<p>')
+            .replace(/$/, '</p>');
 
         diaryContent.innerHTML = formattedContent;
 
-        // 恢复编辑按钮
         editDiaryBtn.innerHTML = `
             <i class="fas fa-edit"></i>
-            <span data-i18n="edit_diary">编辑日记</span>
+            <span data-i18n="edit_diary">Edit Diary</span>
         `;
 
-        // 清除原始内容缓存
         delete diaryContent.dataset.originalContent;
 
-        Notification.success('日记保存成功');
+        Notification.success('Diary saved successfully');
     }
 
-    /**
-     * 取消日记编辑
-     */
     cancelEditDiary() {
         const diaryContent = document.getElementById('diaryContent');
         const editDiaryBtn = document.getElementById('editDiaryBtn');
@@ -582,43 +510,33 @@ class UIController {
             return;
         }
 
-        // 恢复原始内容
         const originalContent = diaryContent.dataset.originalContent;
         if (originalContent) {
             diaryContent.innerHTML = originalContent;
         }
 
-        // 退出编辑模式
         diaryContent.classList.remove('editing');
 
-        // 恢复编辑按钮
         if (editDiaryBtn) {
             editDiaryBtn.innerHTML = `
                 <i class="fas fa-edit"></i>
-                <span data-i18n="edit_diary">编辑日记</span>
+                <span data-i18n="edit_diary">Edit Diary</span>
             `;
         }
 
-        // 清除原始内容缓存
         delete diaryContent.dataset.originalContent;
 
-        Notification.info('已取消编辑');
+        Notification.info('Edit cancelled');
     }
     
-    /**
-     * 编辑待办事项
-     */
     editTodos() {
-        // 这里可以实现待办事项编辑功能
-        Notification.info('待办事项编辑功能开发中...');
+        Notification.info('Todo editing feature coming soon...');
     }
     
-    /**
-     * 设置提醒
-     */
+    // Reminder management
     setReminders() {
         if (!this.currentData.todos || !this.currentData.todos.todos.length) {
-            Notification.warning('没有待办事项需要设置提醒');
+            Notification.warning('No todos to set reminders for');
             return;
         }
         
@@ -626,9 +544,6 @@ class UIController {
         DOM.show(this.elements.modalOverlay);
     }
     
-    /**
-     * 渲染提醒设置模态框
-     */
     renderReminderModal() {
         if (!this.elements.reminderForm) return;
         
@@ -658,29 +573,20 @@ class UIController {
         this.elements.reminderForm.innerHTML = html;
     }
     
-    /**
-     * 获取默认提醒时间
-     */
     getDefaultReminderTime(todo) {
         let reminderTime;
         
         if (todo.due_time) {
-            // 如果有截止时间，设置为截止时间前15分钟
             const dueDate = new Date(todo.due_time);
             reminderTime = new Date(dueDate.getTime() - 15 * 60 * 1000);
         } else {
-            // 如果没有截止时间，设置为明天同一时间
             reminderTime = new Date();
             reminderTime.setDate(reminderTime.getDate() + 1);
         }
         
-        // 格式化为datetime-local输入框需要的格式
         return reminderTime.toISOString().slice(0, 16);
     }
     
-    /**
-     * 保存提醒设置
-     */
     async saveReminders() {
         const todos = this.currentData.todos.todos;
         const reminderItems = this.elements.reminderForm.querySelectorAll('.reminder-item');
@@ -696,35 +602,26 @@ class UIController {
             }
         });
         
-        // 更新显示
         this.renderTodos(todos);
         this.closeModal();
         
-        Notification.success('提醒时间设置成功！');
+        Notification.success('Reminder time set successfully!');
     }
     
-    /**
-     * 关闭模态框
-     */
     closeModal() {
         DOM.hide(this.elements.modalOverlay);
     }
     
-    /**
-     * 放弃结果
-     */
+    // Result actions
     discardResults() {
         DOM.hide(this.elements.resultsSection);
         this.currentData = { diary: null, todos: null };
         this.clearInput();
     }
     
-    /**
-     * 确认保存结果
-     */
     async confirmResults() {
         if (!this.currentData.diary && (!this.currentData.todos || !this.currentData.todos.todos.length)) {
-            Notification.warning('没有数据可以保存');
+            Notification.warning('No data to save');
             return;
         }
         
@@ -732,26 +629,23 @@ class UIController {
             const result = await api.confirmData(this.currentData.diary, this.currentData.todos, true);
             
             if (result.success) {
-                Notification.success('数据保存成功！');
+                Notification.success('Data saved successfully!');
                 this.discardResults();
             }
         } catch (error) {
-            console.error('保存数据失败:', error);
+            console.error('Failed to save data:', error);
         }
     }
     
-    /**
-     * 切换页面
-     */
+    // Page navigation methods
     switchPage(page) {
-        // 更新导航状态
+        // Update navigation state
         this.elements.navItems.forEach(item => {
             item.classList.toggle('active', item.dataset.page === page);
         });
         
-        // 处理主页显示
+        // Handle home page display
         if (page === 'home' || page === undefined) {
-            // 显示主内容，隐藏所有页面
             if (this.elements.mainContent) {
                 DOM.show(this.elements.mainContent);
             }
@@ -760,12 +654,10 @@ class UIController {
                     DOM.hide(pageElement);
                 }
             });
-            // 清除所有导航项的active状态
             this.elements.navItems.forEach(item => {
                 item.classList.remove('active');
             });
         } else {
-            // 隐藏主内容，显示对应页面
             if (this.elements.mainContent) {
                 DOM.hide(this.elements.mainContent);
             }
@@ -775,7 +667,6 @@ class UIController {
                 }
             });
             
-            // 显示当前页面
             if (this.elements.pages[page]) {
                 DOM.show(this.elements.pages[page]);
             }
@@ -783,13 +674,10 @@ class UIController {
         
         this.currentPage = page || 'home';
         
-        // 加载页面数据
         this.loadPageData(page);
     }
     
-    /**
-     * 加载页面数据
-     */
+    // Page data loading
     async loadPageData(page) {
         switch (page) {
             case 'myDiary':
@@ -804,9 +692,6 @@ class UIController {
         }
     }
     
-    /**
-     * 加载日记列表
-     */
     async loadDiaryList() {
         if (!this.elements.diaryList) return;
         
@@ -816,17 +701,13 @@ class UIController {
                 this.renderDiaryList(result.data);
             }
         } catch (error) {
-            console.error('加载日记列表失败:', error);
+            console.error('Failed to load diary list:', error);
         }
     }
     
-    /**
-     * 渲染日记列表
-     */
     renderDiaryList(diaries) {
         if (!diaries || diaries.length === 0) {
             this.elements.diaryList.innerHTML = '<p class="text-center" data-i18n="no_diary_yet">No diary entries yet</p>';
-            // 确保国际化系统更新这个新添加的元素
             if (window.i18n) {
                 window.i18n.updateContent();
             }
@@ -854,26 +735,17 @@ class UIController {
         
         this.elements.diaryList.innerHTML = html;
         
-        // 使用事件委托绑定点击事件
         this.bindDiaryItemEvents();
     }
 
-    /**
-     * 绑定日记项点击事件
-     */
     bindDiaryItemEvents() {
         if (!this.elements.diaryList) return;
         
-        // 移除之前的事件监听器（如果有的话）
         this.elements.diaryList.removeEventListener('click', this.handleDiaryItemClick);
         
-        // 绑定事件委托
         this.elements.diaryList.addEventListener('click', this.handleDiaryItemClick.bind(this));
     }
 
-    /**
-     * 处理日记项点击事件
-     */
     handleDiaryItemClick(event) {
         const diaryItem = event.target.closest('.diary-item');
         if (diaryItem) {
@@ -885,9 +757,6 @@ class UIController {
         }
     }
     
-    /**
-     * 加载待办事项列表
-     */
     async loadTodosList() {
         if (!this.elements.todosList) return;
         
@@ -897,17 +766,13 @@ class UIController {
                 this.renderTodosList(result.data);
             }
         } catch (error) {
-            console.error('加载待办事项列表失败:', error);
+            console.error('Failed to load todos list:', error);
         }
     }
     
-    /**
-     * 渲染待办事项列表
-     */
     renderTodosList(todos) {
         if (!todos || todos.length === 0) {
             this.elements.todosList.innerHTML = '<p class="text-center" data-i18n="no_todos">No todos</p>';
-            // 确保国际化系统更新这个新添加的元素
             if (window.i18n) {
                 window.i18n.updateContent();
             }
@@ -937,50 +802,40 @@ class UIController {
         this.elements.todosList.innerHTML = html;
     }
     
-    /**
-     * 完成待办事项
-     */
     async completeTodo(id) {
         try {
             await api.completeTodo(id);
-            this.loadTodosList(); // 重新加载列表
+            this.loadTodosList();
         } catch (error) {
-            console.error('完成待办事项失败:', error);
+            console.error('Failed to complete todo:', error);
         }
     }
     
-    /**
-     * 加载设置
-     */
+    // Settings management
     loadSettings() {
-        // 从本地存储加载设置
+        // Load settings from local storage
         const settings = Storage.get('dearDiarySettings', {
             enableReminders: true,
             defaultReminderOffset: 60,
             theme: 'pink'
         });
         
-        console.log('Loading settings:', settings); // 调试日志
+        console.log('Loading settings:', settings);
         
         if (this.elements.enableReminders) {
             this.elements.enableReminders.checked = settings.enableReminders;
-            console.log('Enable reminders set to:', settings.enableReminders); // 调试日志
+            console.log('Enable reminders set to:', settings.enableReminders);
         }
         if (this.elements.defaultReminderOffset) {
             this.elements.defaultReminderOffset.value = settings.defaultReminderOffset;
-            console.log('Default reminder offset set to:', settings.defaultReminderOffset); // 调试日志
+            console.log('Default reminder offset set to:', settings.defaultReminderOffset);
         }
         
-        // 设置当前选中的主题
         this.setSelectedTheme(settings.theme);
         
-        // 添加主题选择事件监听器
         this.initThemeSelector();
     }
     
-    /**
-     * 设置选中的主题
-     */
     setSelectedTheme(themeName) {
         const themeOptions = document.querySelectorAll('.theme-option');
         themeOptions.forEach(option => {
@@ -991,9 +846,6 @@ class UIController {
         });
     }
     
-    /**
-     * 保存提醒设置
-     */
     saveReminderSettings() {
         const settings = Storage.get('dearDiarySettings', {
             enableReminders: true,
@@ -1009,12 +861,9 @@ class UIController {
         }
         
         Storage.set('dearDiarySettings', settings);
-        console.log('提醒设置已保存:', settings);
+        console.log('Reminder settings saved:', settings);
     }
     
-    /**
-     * 初始化主题选择器
-     */
     initThemeSelector() {
         const themeOptions = document.querySelectorAll('.theme-option');
         themeOptions.forEach(option => {
@@ -1025,17 +874,11 @@ class UIController {
         });
     }
     
-    /**
-     * 改变主题
-     */
     changeTheme(themeName) {
-        // 应用主题
         document.documentElement.setAttribute('data-theme', themeName);
         
-        // 更新选中状态
         this.setSelectedTheme(themeName);
         
-        // 保存设置（保持其他设置不变）
         const settings = Storage.get('dearDiarySettings', {
             enableReminders: true,
             defaultReminderOffset: 60,
@@ -1044,52 +887,32 @@ class UIController {
         settings.theme = themeName;
         Storage.set('dearDiarySettings', settings);
         
-        console.log('主题已切换为:', themeName);
+        console.log('Theme changed to:', themeName);
     }
     
-    /**
-     * 切换深色模式 (已弃用 - 使用新的主题系统)
-     */
+    // Deprecated method - replaced by new theme system
     toggleDarkMode() {
-        // 这个方法已被新的主题系统替代
-        console.warn('toggleDarkMode 已弃用，请使用 changeTheme 方法');
+        console.warn('toggleDarkMode is deprecated, use changeTheme method instead');
     }
     
-    /**
-     * 发送测试提醒
-     */
     async sendTestReminder() {
         try {
             await api.sendTestReminder();
         } catch (error) {
-            console.error('发送测试提醒失败:', error);
+            console.error('Failed to send test reminder:', error);
         }
     }
     
-    /**
-     * 加载统计信息
-     */
-    /**
-     * 处理语言切换事件
-     * @param {Object} detail - 语言切换详情
-     */
+    // Language change handling
     onLanguageChanged(detail) {
         const { language, translations } = detail;
         
-        // 更新动态内容的翻译
         this.updateDynamicTranslations(language, translations);
         
-        // 重新加载当前页面的内容
         this.refreshCurrentPageContent(language);
     }
 
-    /**
-     * 更新动态翻译内容
-     * @param {string} language - 语言代码
-     * @param {Object} translations - 翻译对象
-     */
     updateDynamicTranslations(language, translations) {
-        // 更新语音状态文本
         if (this.elements.voiceStatus) {
             const currentText = this.elements.voiceStatus.textContent.trim();
             if (currentText === '录音中...' || currentText === 'Recording...') {
@@ -1099,7 +922,6 @@ class UIController {
             }
         }
 
-        // 更新加载文本
         const loadingText = document.querySelector('#loadingOverlay p');
         if (loadingText && loadingText.textContent) {
             const currentLoadingText = loadingText.textContent.trim();
@@ -1109,21 +931,12 @@ class UIController {
         }
     }
 
-    /**
-     * 刷新当前页面内容
-     * @param {string} language - 语言代码
-     */
     refreshCurrentPageContent(language) {
-        // 如果有结果正在显示，更新结果标题
         if (!this.elements.resultsSection.classList.contains('hidden')) {
             this.updateResultsHeaders(language);
         }
     }
 
-    /**
-     * 更新结果区域的标题
-     * @param {string} language - 语言代码
-     */
     updateResultsHeaders(language) {
         const diaryCard = document.querySelector('#diaryPreview .card-title');
         const todosCard = document.querySelector('#todosPreview .card-title');
@@ -1141,22 +954,17 @@ class UIController {
         }
     }
 
-    /**
-     * 显示日记详情
-     */
+    // Diary details modal
     async showDiaryDetails(diaryId) {
         console.log('Showing diary details for ID:', diaryId);
         
-        // 显示加载状态
         const loadingModal = this.createLoadingModal();
         document.body.appendChild(loadingModal);
         
         try {
-            // 获取日记详情
             const response = await api.getDiary(diaryId);
             console.log('API response:', response);
             
-            // 移除加载状态
             loadingModal.remove();
             
             if (response.success) {
@@ -1166,16 +974,12 @@ class UIController {
                 Notification.error('Failed to load diary details');
             }
         } catch (error) {
-            // 移除加载状态
             loadingModal.remove();
             console.error('Error loading diary details:', error);
             Notification.error('Error loading diary details');
         }
     }
 
-    /**
-     * 创建加载模态框
-     */
     createLoadingModal() {
         const loadingModal = document.createElement('div');
         loadingModal.className = 'modal-overlay';
@@ -1190,13 +994,10 @@ class UIController {
         return loadingModal;
     }
 
-    /**
-     * 显示日记详情模态框
-     */
     displayDiaryModal(diary) {
         console.log('Displaying diary modal for:', diary);
         
-        // 安全地获取字段值，提供默认值
+        // Safe field values with defaults
         const safeContent = diary.content || 'No content available';
         const safeReflection = diary.reflection || '';
         const safeRecord = diary.record || '';
@@ -1205,7 +1006,7 @@ class UIController {
         const safeDate = diary.date || formatDate(diary.created_at, 'date') || 'Unknown date';
         const safeCreatedAt = diary.created_at ? formatDate(diary.created_at, 'datetime') : 'Unknown time';
         
-        // 创建模态框HTML
+        // Create modal HTML
         const modalHTML = `
             <div class="modal-overlay" id="diaryModal">
                 <div class="modal-content diary-modal">
@@ -1272,15 +1073,12 @@ class UIController {
             </div>
         `;
         
-        // 添加模态框到页面
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         
-        // 更新国际化
         if (window.i18n) {
             window.i18n.updateContent();
         }
         
-        // 添加关闭事件
         const overlay = document.getElementById('diaryModal');
         if (overlay) {
             overlay.addEventListener('click', (e) => {
@@ -1291,9 +1089,6 @@ class UIController {
         }
     }
 
-    /**
-     * 关闭日记详情模态框
-     */
     closeDiaryModal() {
         const modal = document.getElementById('diaryModal');
         if (modal) {
@@ -1301,20 +1096,13 @@ class UIController {
         }
     }
 
-    /**
-     * 编辑日记
-     */
     editDiary(diaryId) {
-        // 这里可以实现编辑功能
         console.log('Edit diary:', diaryId);
         this.closeDiaryModal();
-        // TODO: 实现编辑功能
         Notification.info('Edit functionality coming soon');
     }
 }
 
-// 创建全局UI控制器实例
+// Global UI controller instance
 window.ui = new UIController();
-// 为了兼容性，也创建uiManager别名
 window.uiManager = window.ui;
-window.ui = new UIController();
