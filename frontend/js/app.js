@@ -450,7 +450,7 @@ class DearDiaryApp {
         const settings = Storage.get('dearDiarySettings', {
             theme: 'pink',
             enableReminders: true,
-            defaultReminderOffset: 15,
+            defaultReminderOffset: 60,
             language: 'en-AU'
         });
         

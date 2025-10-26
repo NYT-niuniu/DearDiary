@@ -22,6 +22,7 @@ class UIController {
         this.bindEvents();
         this.setupNavigation();
         this.switchInputMethod('voice'); // 默认语音输入
+        this.loadSettings(); // 加载设置
     }
     
     /**
@@ -29,6 +30,10 @@ class UIController {
      */
     initElements() {
         this.elements = {
+            // 导航相关
+            hamburgerBtn: document.getElementById('hamburgerBtn'),
+            mainNav: document.getElementById('mainNav'),
+            
             // 输入相关
             textInputBtn: document.getElementById('textInputBtn'),
             voiceInputBtn: document.getElementById('voiceInputBtn'),
@@ -84,6 +89,27 @@ class UIController {
      * 绑定事件监听器
      */
     bindEvents() {
+        // 汉堡菜单切换
+        if (this.elements.hamburgerBtn && this.elements.mainNav) {
+            this.elements.hamburgerBtn.addEventListener('click', () => this.toggleMobileMenu());
+            
+            // 点击导航链接后关闭菜单
+            const navItems = this.elements.mainNav.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => this.closeMobileMenu());
+            });
+        }
+        
+        // 点击页面其他地方关闭菜单
+        document.addEventListener('click', (e) => {
+            if (this.elements.hamburgerBtn && this.elements.mainNav) {
+                if (!this.elements.hamburgerBtn.contains(e.target) && 
+                    !this.elements.mainNav.contains(e.target)) {
+                    this.closeMobileMenu();
+                }
+            }
+        });
+        
         // 语言切换监听
         window.addEventListener('languageChanged', (e) => {
             this.onLanguageChanged(e.detail);
@@ -151,6 +177,14 @@ class UIController {
             this.elements.testReminderBtn.addEventListener('click', () => this.sendTestReminder());
         }
         
+        // 提醒设置事件监听
+        if (this.elements.enableReminders) {
+            this.elements.enableReminders.addEventListener('change', () => this.saveReminderSettings());
+        }
+        if (this.elements.defaultReminderOffset) {
+            this.elements.defaultReminderOffset.addEventListener('change', () => this.saveReminderSettings());
+        }
+        
         // 输入框事件
         if (this.elements.userInput) {
             this.elements.userInput.addEventListener('input', debounce(() => {
@@ -180,6 +214,26 @@ class UIController {
                 const page = logoLink.dataset.page || 'diary';
                 this.switchPage(page);
             });
+        }
+    }
+    
+    /**
+     * 切换移动端菜单显示/隐藏
+     */
+    toggleMobileMenu() {
+        if (this.elements.hamburgerBtn && this.elements.mainNav) {
+            this.elements.hamburgerBtn.classList.toggle('active');
+            this.elements.mainNav.classList.toggle('active');
+        }
+    }
+    
+    /**
+     * 关闭移动端菜单
+     */
+    closeMobileMenu() {
+        if (this.elements.hamburgerBtn && this.elements.mainNav) {
+            this.elements.hamburgerBtn.classList.remove('active');
+            this.elements.mainNav.classList.remove('active');
         }
     }
     
@@ -740,15 +794,19 @@ class UIController {
         // 从本地存储加载设置
         const settings = Storage.get('dearDiarySettings', {
             enableReminders: true,
-            defaultReminderOffset: 15,
+            defaultReminderOffset: 60,
             theme: 'pink'
         });
         
+        console.log('Loading settings:', settings); // 调试日志
+        
         if (this.elements.enableReminders) {
             this.elements.enableReminders.checked = settings.enableReminders;
+            console.log('Enable reminders set to:', settings.enableReminders); // 调试日志
         }
         if (this.elements.defaultReminderOffset) {
             this.elements.defaultReminderOffset.value = settings.defaultReminderOffset;
+            console.log('Default reminder offset set to:', settings.defaultReminderOffset); // 调试日志
         }
         
         // 设置当前选中的主题
@@ -769,6 +827,27 @@ class UIController {
                 option.classList.add('selected');
             }
         });
+    }
+    
+    /**
+     * 保存提醒设置
+     */
+    saveReminderSettings() {
+        const settings = Storage.get('dearDiarySettings', {
+            enableReminders: true,
+            defaultReminderOffset: 60,
+            theme: 'pink'
+        });
+        
+        if (this.elements.enableReminders) {
+            settings.enableReminders = this.elements.enableReminders.checked;
+        }
+        if (this.elements.defaultReminderOffset) {
+            settings.defaultReminderOffset = parseInt(this.elements.defaultReminderOffset.value);
+        }
+        
+        Storage.set('dearDiarySettings', settings);
+        console.log('提醒设置已保存:', settings);
     }
     
     /**
@@ -794,8 +873,12 @@ class UIController {
         // 更新选中状态
         this.setSelectedTheme(themeName);
         
-        // 保存设置
-        const settings = Storage.get('dearDiarySettings', {});
+        // 保存设置（保持其他设置不变）
+        const settings = Storage.get('dearDiarySettings', {
+            enableReminders: true,
+            defaultReminderOffset: 60,
+            theme: 'pink'
+        });
         settings.theme = themeName;
         Storage.set('dearDiarySettings', settings);
         
