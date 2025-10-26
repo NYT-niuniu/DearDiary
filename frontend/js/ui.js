@@ -276,7 +276,9 @@ class UIController {
         if (window.speechManager) {
             const transcribedText = document.getElementById('transcribedText');
             if (transcribedText) {
-                transcribedText.textContent = '';
+                transcribedText.value = '';
+                // 确保移除录音状态类，显示placeholder
+                transcribedText.classList.remove('recording');
             }
         }
     }
@@ -288,7 +290,9 @@ class UIController {
         // 清空语音转录结果
         const transcribedText = document.getElementById('transcribedText');
         if (transcribedText) {
-            transcribedText.textContent = '';
+            transcribedText.value = '';
+            // 确保移除录音状态类，显示placeholder
+            transcribedText.classList.remove('recording');
         }
         
         // 重置语音状态
@@ -304,7 +308,7 @@ class UIController {
      */
     async processVoiceInput() {
         const transcribedText = document.getElementById('transcribedText');
-        const input = transcribedText?.textContent?.trim();
+        const input = transcribedText?.value?.trim();
         
         if (!input) {
             Notification.warning('请先录音或输入一些内容');
@@ -314,7 +318,7 @@ class UIController {
         try {
             DOM.show(this.elements.loadingOverlay);
             
-            const response = await api.generateDiary(input);
+            const response = await api.analyzeInput(input);
             if (response.success) {
                 this.displayResults(response.data);
             } else {
@@ -334,7 +338,7 @@ class UIController {
     updateVoiceProcessButton() {
         if (this.elements.processVoiceBtn) {
             const transcribedText = document.getElementById('transcribedText');
-            const hasInput = transcribedText && !isEmpty(transcribedText.textContent);
+            const hasInput = transcribedText && !isEmpty(transcribedText.value);
             this.elements.processVoiceBtn.disabled = !hasInput;
         }
     }
@@ -404,15 +408,15 @@ class UIController {
         const html = `
             <div class=\"diary-meta\">
                 <div class=\"diary-meta-item\">
-                    <span class=\"diary-meta-label\">日期</span>
+                    <span class=\"diary-meta-label\">${window.i18n ? window.i18n.t('date') : 'Date'}</span>
                     <div class=\"diary-meta-value\">${diary.date}</div>
                 </div>
                 <div class=\"diary-meta-item\">
-                    <span class=\"diary-meta-label\">天气</span>
+                    <span class=\"diary-meta-label\">${window.i18n ? window.i18n.t('weather') : 'Weather'}</span>
                     <div class=\"diary-meta-value\">${diary.weather}</div>
                 </div>
                 <div class=\"diary-meta-item\">
-                    <span class=\"diary-meta-label\">心情</span>
+                    <span class=\"diary-meta-label\">${window.i18n ? window.i18n.t('mood') : 'Mood'}</span>
                     <div class=\"diary-meta-value\">
                         <i class=\"${getMoodIcon(diary.mood)}\"></i>
                         ${diary.mood}
@@ -421,10 +425,10 @@ class UIController {
             </div>
             
             <div class=\"diary-text\">
-                <h4>今日记录</h4>
+                <h4>${window.i18n ? window.i18n.t('today_record') : 'Today\'s Record'}</h4>
                 <p>${diary.content}</p>
                 
-                <h4>今日感悟</h4>
+                <h4>${window.i18n ? window.i18n.t('today_reflection') : 'Today\'s Reflection'}</h4>
                 <p>${diary.reflection}</p>
             </div>
         `;
@@ -469,8 +473,136 @@ class UIController {
      * 编辑日记
      */
     editDiary() {
-        // 这里可以实现日记编辑功能
-        Notification.info('日记编辑功能开发中...');
+        const diaryContent = document.getElementById('diaryContent');
+        const editDiaryBtn = document.getElementById('editDiaryBtn');
+        
+        if (!diaryContent || !editDiaryBtn) {
+            Notification.error('未找到日记内容区域');
+            return;
+        }
+
+        // 检查当前是否已经在编辑模式
+        if (diaryContent.classList.contains('editing')) {
+            this.saveDiary();
+            return;
+        }
+
+        // 进入编辑模式
+        const currentContent = diaryContent.innerHTML;
+        const plainText = diaryContent.innerText || diaryContent.textContent || '';
+        
+        diaryContent.classList.add('editing');
+        diaryContent.innerHTML = `
+            <div class="diary-editor">
+                <textarea id="diaryEditor" class="form-control diary-textarea" rows="8" placeholder="${window.i18n.t('edit_diary_placeholder', '编辑您的日记内容...')}">${plainText.trim()}</textarea>
+                <div class="editor-actions mt-3">
+                    <button class="btn btn-primary" onclick="window.ui.saveDiary()">
+                        <i class="fas fa-save"></i>
+                        <span data-i18n="save">保存</span>
+                    </button>
+                    <button class="btn btn-secondary ms-2" onclick="window.ui.cancelEditDiary()">
+                        <i class="fas fa-times"></i>
+                        <span data-i18n="cancel">取消</span>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // 更新编辑按钮
+        editDiaryBtn.innerHTML = `
+            <i class="fas fa-save"></i>
+            <span data-i18n="save">保存</span>
+        `;
+
+        // 聚焦到编辑器
+        const editor = document.getElementById('diaryEditor');
+        if (editor) {
+            editor.focus();
+            // 将光标移到文本末尾
+            editor.setSelectionRange(editor.value.length, editor.value.length);
+        }
+
+        // 存储原始内容，以便取消时恢复
+        diaryContent.dataset.originalContent = currentContent;
+
+        Notification.success('进入编辑模式');
+    }
+
+    /**
+     * 保存日记编辑
+     */
+    saveDiary() {
+        const diaryContent = document.getElementById('diaryContent');
+        const editDiaryBtn = document.getElementById('editDiaryBtn');
+        const editor = document.getElementById('diaryEditor');
+        
+        if (!diaryContent || !editor) {
+            Notification.error('编辑器未找到');
+            return;
+        }
+
+        const newContent = editor.value.trim();
+        if (!newContent) {
+            Notification.error('日记内容不能为空');
+            return;
+        }
+
+        // 退出编辑模式
+        diaryContent.classList.remove('editing');
+        
+        // 将换行符转换为HTML格式并保持格式
+        const formattedContent = newContent
+            .replace(/\n\n/g, '</p><p>')  // 双换行转为段落
+            .replace(/\n/g, '<br>')       // 单换行转为换行
+            .replace(/^/, '<p>')          // 开头加段落
+            .replace(/$/, '</p>');        // 结尾加段落
+
+        diaryContent.innerHTML = formattedContent;
+
+        // 恢复编辑按钮
+        editDiaryBtn.innerHTML = `
+            <i class="fas fa-edit"></i>
+            <span data-i18n="edit_diary">编辑日记</span>
+        `;
+
+        // 清除原始内容缓存
+        delete diaryContent.dataset.originalContent;
+
+        Notification.success('日记保存成功');
+    }
+
+    /**
+     * 取消日记编辑
+     */
+    cancelEditDiary() {
+        const diaryContent = document.getElementById('diaryContent');
+        const editDiaryBtn = document.getElementById('editDiaryBtn');
+        
+        if (!diaryContent) {
+            return;
+        }
+
+        // 恢复原始内容
+        const originalContent = diaryContent.dataset.originalContent;
+        if (originalContent) {
+            diaryContent.innerHTML = originalContent;
+        }
+
+        // 退出编辑模式
+        diaryContent.classList.remove('editing');
+
+        // 恢复编辑按钮
+        if (editDiaryBtn) {
+            editDiaryBtn.innerHTML = `
+                <i class="fas fa-edit"></i>
+                <span data-i18n="edit_diary">编辑日记</span>
+            `;
+        }
+
+        // 清除原始内容缓存
+        delete diaryContent.dataset.originalContent;
+
+        Notification.info('已取消编辑');
     }
     
     /**
@@ -509,12 +641,12 @@ class UIController {
                 <div class=\"reminder-controls\">
                     <label>
                         <input type=\"checkbox\" class=\"todo-reminder-enabled\" data-index=\"${index}\" checked>
-                        启用提醒
+                        ${window.i18n ? window.i18n.t('enable_reminder') : 'Enable Reminder'}
                     </label>
                     
                     <div class=\"reminder-time-inputs\">
                         <label>
-                            提醒时间:
+                            ${window.i18n ? window.i18n.t('reminder_time') : 'Reminder Time'}:
                             <input type=\"datetime-local\" class=\"reminder-time\" data-index=\"${index}\"
                                    value=\"${this.getDefaultReminderTime(todo)}\">
                         </label>
@@ -702,25 +834,55 @@ class UIController {
         }
         
         const html = diaries.map(diary => `
-            <div class=\"diary-item\">
-                <div class=\"diary-item-header\">
+            <div class="diary-item" data-diary-id="${diary.id}">
+                <div class="diary-item-header">
                     <h3>${diary.date}</h3>
-                    <div class=\"diary-item-mood\">
-                        <i class=\"${getMoodIcon(diary.mood)}\"></i>
+                    <div class="diary-item-mood">
+                        <i class="${getMoodIcon(diary.mood)}"></i>
                         ${diary.mood}
                     </div>
                 </div>
-                <div class=\"diary-item-content\">
+                <div class="diary-item-content">
                     ${truncateText(diary.content, 150)}
                 </div>
-                <div class=\"diary-item-meta\">
-                    <span><i class=\"fas fa-cloud\"></i> ${diary.weather}</span>
-                    <span><i class=\"fas fa-clock\"></i> ${formatDate(diary.created_at, 'datetime')}</span>
+                <div class="diary-item-meta">
+                    <span><i class="fas fa-cloud"></i> ${diary.weather}</span>
+                    <span><i class="fas fa-clock"></i> ${formatDate(diary.created_at, 'datetime')}</span>
                 </div>
             </div>
         `).join('');
         
         this.elements.diaryList.innerHTML = html;
+        
+        // 使用事件委托绑定点击事件
+        this.bindDiaryItemEvents();
+    }
+
+    /**
+     * 绑定日记项点击事件
+     */
+    bindDiaryItemEvents() {
+        if (!this.elements.diaryList) return;
+        
+        // 移除之前的事件监听器（如果有的话）
+        this.elements.diaryList.removeEventListener('click', this.handleDiaryItemClick);
+        
+        // 绑定事件委托
+        this.elements.diaryList.addEventListener('click', this.handleDiaryItemClick.bind(this));
+    }
+
+    /**
+     * 处理日记项点击事件
+     */
+    handleDiaryItemClick(event) {
+        const diaryItem = event.target.closest('.diary-item');
+        if (diaryItem) {
+            const diaryId = diaryItem.getAttribute('data-diary-id');
+            if (diaryId) {
+                console.log('Diary item clicked, ID:', diaryId);
+                this.showDiaryDetails(diaryId);
+            }
+        }
     }
     
     /**
@@ -978,7 +1140,181 @@ class UIController {
             todosCard.innerHTML = iconHTML + ' ' + window.i18n.t('extracted_todos', '提取的待办事项');
         }
     }
+
+    /**
+     * 显示日记详情
+     */
+    async showDiaryDetails(diaryId) {
+        console.log('Showing diary details for ID:', diaryId);
+        
+        // 显示加载状态
+        const loadingModal = this.createLoadingModal();
+        document.body.appendChild(loadingModal);
+        
+        try {
+            // 获取日记详情
+            const response = await api.getDiary(diaryId);
+            console.log('API response:', response);
+            
+            // 移除加载状态
+            loadingModal.remove();
+            
+            if (response.success) {
+                this.displayDiaryModal(response.data);
+            } else {
+                console.error('Failed to load diary:', response.error);
+                Notification.error('Failed to load diary details');
+            }
+        } catch (error) {
+            // 移除加载状态
+            loadingModal.remove();
+            console.error('Error loading diary details:', error);
+            Notification.error('Error loading diary details');
+        }
+    }
+
+    /**
+     * 创建加载模态框
+     */
+    createLoadingModal() {
+        const loadingModal = document.createElement('div');
+        loadingModal.className = 'modal-overlay';
+        loadingModal.innerHTML = `
+            <div class="modal-content" style="max-width: 300px; text-align: center; padding: 2rem;">
+                <div class="loading-spinner" style="margin-bottom: 1rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color);"></i>
+                </div>
+                <p data-i18n="loading_diary">Loading diary details...</p>
+            </div>
+        `;
+        return loadingModal;
+    }
+
+    /**
+     * 显示日记详情模态框
+     */
+    displayDiaryModal(diary) {
+        console.log('Displaying diary modal for:', diary);
+        
+        // 安全地获取字段值，提供默认值
+        const safeContent = diary.content || 'No content available';
+        const safeReflection = diary.reflection || '';
+        const safeRecord = diary.record || '';
+        const safeMood = diary.mood || 'Unknown';
+        const safeWeather = diary.weather || 'Unknown';
+        const safeDate = diary.date || formatDate(diary.created_at, 'date') || 'Unknown date';
+        const safeCreatedAt = diary.created_at ? formatDate(diary.created_at, 'datetime') : 'Unknown time';
+        
+        // 创建模态框HTML
+        const modalHTML = `
+            <div class="modal-overlay" id="diaryModal">
+                <div class="modal-content diary-modal">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-book"></i> ${safeDate}</h2>
+                        <button class="modal-close" onclick="window.ui.closeDiaryModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="diary-detail-section">
+                            <div class="diary-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-heart"></i>
+                                    <span data-i18n="mood">Mood</span>: ${safeMood}
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-cloud"></i>
+                                    <span data-i18n="weather">Weather</span>: ${safeWeather}
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span data-i18n="created_time">Created</span>: ${safeCreatedAt}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="diary-detail-section">
+                            <h3><i class="fas fa-edit"></i> <span data-i18n="diary_content">Diary Content</span></h3>
+                            <div class="diary-content-full">
+                                ${safeContent.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+
+                        ${safeReflection ? `
+                        <div class="diary-detail-section">
+                            <h3><i class="fas fa-lightbulb"></i> <span data-i18n="today_reflection">Today's Reflection</span></h3>
+                            <div class="diary-reflection">
+                                ${safeReflection.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        ${safeRecord ? `
+                        <div class="diary-detail-section">
+                            <h3><i class="fas fa-list-ul"></i> <span data-i18n="today_record">Today's Record</span></h3>
+                            <div class="diary-record">
+                                ${safeRecord.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="window.ui.closeDiaryModal()">
+                            <i class="fas fa-times"></i>
+                            <span data-i18n="close">Close</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="window.ui.editDiary('${diary.id}')">
+                            <i class="fas fa-edit"></i>
+                            <span data-i18n="edit">Edit</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // 添加模态框到页面
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // 更新国际化
+        if (window.i18n) {
+            window.i18n.updateContent();
+        }
+        
+        // 添加关闭事件
+        const overlay = document.getElementById('diaryModal');
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    this.closeDiaryModal();
+                }
+            });
+        }
+    }
+
+    /**
+     * 关闭日记详情模态框
+     */
+    closeDiaryModal() {
+        const modal = document.getElementById('diaryModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    /**
+     * 编辑日记
+     */
+    editDiary(diaryId) {
+        // 这里可以实现编辑功能
+        console.log('Edit diary:', diaryId);
+        this.closeDiaryModal();
+        // TODO: 实现编辑功能
+        Notification.info('Edit functionality coming soon');
+    }
 }
 
 // 创建全局UI控制器实例
+window.ui = new UIController();
+// 为了兼容性，也创建uiManager别名
+window.uiManager = window.ui;
 window.ui = new UIController();

@@ -3,18 +3,27 @@
 /**
  * 格式化日期
  * @param {Date|string} date - 日期对象或ISO字符串
- * @param {string} format - 格式类型：'short', 'long', 'time'
+ * @param {string} format - 格式类型：'short', 'long', 'time', 'datetime', 'date'
  * @returns {string} 格式化后的日期字符串
  */
 function formatDate(date, format = 'short') {
     const d = new Date(date);
     
     if (isNaN(d.getTime())) {
-        return '无效日期';
+        return window.i18n ? window.i18n.t('invalid_date', '无效日期') : '无效日期';
     }
+    
+    // 根据当前语言设置选择locale
+    const currentLang = window.i18n ? window.i18n.currentLanguage : 'zh';
+    const locale = currentLang === 'en' ? 'en-US' : 'zh-CN';
     
     const options = {
         short: { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit' 
+        },
+        date: { 
             year: 'numeric', 
             month: '2-digit', 
             day: '2-digit' 
@@ -40,7 +49,7 @@ function formatDate(date, format = 'short') {
         }
     };
     
-    return d.toLocaleDateString('zh-CN', options[format] || options.short);
+    return d.toLocaleDateString(locale, options[format] || options.short);
 }
 
 /**

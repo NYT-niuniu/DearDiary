@@ -83,6 +83,7 @@ class I18nManager {
                 recording_failed: '启动录音失败，请重试',
                 recording_ended: '录音结束',
                 processing_audio: '处理音频中...',
+                transcribed_placeholder: '您的语音转录文本将出现在这里，可以编辑...',
                 
                 // AI处理
                 ai_analyzing: 'AI正在分析你的内容...',
@@ -93,7 +94,10 @@ class I18nManager {
                 generated_diary: '生成的日记',
                 extracted_todos: '提取的待办事项',
                 edit_diary: '编辑日记',
+                edit_diary_placeholder: '编辑您的日记内容...',
                 edit_todos: '编辑待办事项',
+                save: '保存',
+                cancel: '取消',
                 set_reminders: '设置提醒',
                 discard: '放弃',
                 confirm_save: '确认保存',
@@ -104,6 +108,13 @@ class I18nManager {
                 mood: '心情',
                 content: '内容',
                 reflection: '感悟',
+                today_record: '今日记录',
+                today_reflection: '今日感悟',
+                diary_content: '日记内容',
+                created_time: '创建时间',
+                close: '关闭',
+                edit: '编辑',
+                loading_diary: '正在加载日记详情...',
                 
                 // 待办事项
                 task: '任务',
@@ -125,6 +136,7 @@ class I18nManager {
                 reminder_time: '提醒时间',
                 set_reminder: '设置提醒',
                 no_reminder: '不提醒',
+                enable_reminder: '启用提醒',
                 
                 // 状态消息
                 success_save: '保存成功！',
@@ -207,6 +219,7 @@ class I18nManager {
                 recording_failed: 'Recording failed, please try again',
                 recording_ended: 'Recording ended',
                 processing_audio: 'Processing audio...',
+                transcribed_placeholder: 'Your transcribed text will appear here and can be edited...',
                 
                 // AI Processing
                 ai_analyzing: 'AI is analyzing your content...',
@@ -217,7 +230,10 @@ class I18nManager {
                 generated_diary: 'Generated Diary',
                 extracted_todos: 'Extracted Todos',
                 edit_diary: 'Edit Diary',
+                edit_diary_placeholder: 'Edit your diary content...',
                 edit_todos: 'Edit Todos',
+                save: 'Save',
+                cancel: 'Cancel',
                 set_reminders: 'Set Reminders',
                 discard: 'Discard',
                 confirm_save: 'Confirm & Save',
@@ -228,6 +244,13 @@ class I18nManager {
                 mood: 'Mood',
                 content: 'Content',
                 reflection: 'Reflection',
+                today_record: 'Today\'s Record',
+                today_reflection: 'Today\'s Reflection',
+                diary_content: 'Diary Content',
+                created_time: 'Created Time',
+                close: 'Close',
+                edit: 'Edit',
+                loading_diary: 'Loading diary details...',
                 
                 // Todos
                 task: 'Task',
@@ -249,6 +272,7 @@ class I18nManager {
                 reminder_time: 'Reminder Time',
                 set_reminder: 'Set Reminder',
                 no_reminder: 'No Reminder',
+                enable_reminder: 'Enable Reminder',
                 
                 // Status messages
                 success_save: 'Successfully saved!',

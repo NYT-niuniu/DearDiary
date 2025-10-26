@@ -68,6 +68,59 @@ class GoogleAIService {
     }
 
     /**
+     * 获取统一格式的当前日期
+     * @param {string} language - 语言代码
+     * @returns {string} 格式化的日期字符串
+     */
+    getCurrentDate(language = 'zh') {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        
+        // 统一使用 YYYY-MM-DD 格式，这样前端可以一致处理
+        return `${year}-${month}-${day}`;
+    }
+
+    /**
+     * 获取当前时间和日期信息，用于AI理解时间上下文
+     * @returns {Object} 包含当前时间信息的对象
+     */
+    getCurrentTimeContext() {
+        // 使用本地时间而不是UTC时间来避免时区问题
+        const now = new Date();
+        
+        // 创建明天的日期
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // 创建下周同一天的日期
+        const nextWeek = new Date(now);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        
+        // 格式化日期函数
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
+        return {
+            current_datetime: now.toISOString(),
+            current_date: formatDate(now),
+            current_time: now.toTimeString().slice(0, 5), // HH:MM
+            current_weekday: now.toLocaleDateString('en-US', { weekday: 'long' }),
+            tomorrow_date: formatDate(tomorrow),
+            next_week_date: formatDate(nextWeek),
+            current_year: now.getFullYear(),
+            current_month: now.getMonth() + 1,
+            current_day: now.getDate(),
+            current_hour: now.getHours()
+        };
+    }
+
+    /**
      * 生成格式化的日记内容
      * @param {string} userInput - 用户的原始输入
      * @returns {Promise<Object>} 包含日记内容和元数据的对象
@@ -75,6 +128,7 @@ class GoogleAIService {
     async generateDiaryEntry(userInput) {
         try {
             const language = this.detectLanguage(userInput);
+            const currentDate = this.getCurrentDate(language);
             
             let prompt;
             if (language === 'zh') {
@@ -85,7 +139,7 @@ class GoogleAIService {
 
 请按照以下格式生成日记：
 
-**日期**: ${new Date().toLocaleDateString('zh-CN')}
+**日期**: ${currentDate}
 **天气**: [如果用户提到天气，请提取；如果没有提到，标记为"未记录"]
 **心情**: [根据用户的话语分析情绪，用一个词概括，如：开心、平静、疲惫、兴奋等]
 
@@ -100,10 +154,11 @@ class GoogleAIService {
 2. 语言要自然流畅，符合日记写作风格
 3. 如果用户提到了具体的时间、地点、人物，请保留这些信息
 4. 保持积极正面的语调
+5. 日期必须使用YYYY-MM-DD格式：${currentDate}
 
 请以JSON格式返回结果：
 {
-    "date": "日期",
+    "date": "${currentDate}",
     "weather": "天气",
     "mood": "心情",
     "content": "今日记录内容",
@@ -119,7 +174,7 @@ User input: ${userInput}
 
 Please generate a diary entry in the following format:
 
-**Date**: ${new Date().toLocaleDateString('en-AU')}
+**Date**: ${currentDate}
 **Weather**: [Extract weather if mentioned by user; otherwise mark as "Not recorded"]
 **Mood**: [Analyze emotion based on user's words, summarize in one word, such as: happy, calm, tired, excited, etc.]
 
@@ -134,10 +189,11 @@ Please ensure:
 2. Language should be natural and smooth, conforming to diary writing style
 3. If user mentions specific time, place, people, please retain this information
 4. Maintain positive tone
+5. Date must use YYYY-MM-DD format: ${currentDate}
 
 Please return results in JSON format:
 {
-    "date": "date",
+    "date": "${currentDate}",
     "weather": "weather",
     "mood": "mood",
     "content": "today's record content",
@@ -170,7 +226,7 @@ Please return results in JSON format:
             return {
                 success: true,
                 data: {
-                    date: new Date().toLocaleDateString('zh-CN'),
+                    date: currentDate,
                     weather: "未记录",
                     mood: "平静",
                     content: text,
@@ -194,9 +250,15 @@ Please return results in JSON format:
      * @param {string} userInput - 用户的原始输入
      * @returns {Promise<Object>} 包含待办事项列表的对象
      */
+    /**
+     * 从用户输入中提取待办事项
+     * @param {string} userInput - 用户的原始输入
+     * @returns {Promise<Object>} 包含待办事项列表的对象
+     */
     async extractTodoItems(userInput) {
         try {
             const language = this.detectLanguage(userInput);
+            const timeContext = this.getCurrentTimeContext();
             
             let prompt;
             if (language === 'zh') {
@@ -205,13 +267,45 @@ Please return results in JSON format:
 
 用户输入：${userInput}
 
+当前时间上下文：
+- 当前日期时间：${timeContext.current_datetime}
+- 当前日期：${timeContext.current_date}（${timeContext.current_weekday}）
+- 当前时间：${timeContext.current_time}
+- 明天日期：${timeContext.tomorrow_date}
+- 下周同一天：${timeContext.next_week_date}
+
 请识别出所有明确或隐含的任务、计划、约会等需要用户后续执行的事项。
 
-对于每个待办事项，请提取以下信息：
+时间解析规则（非常重要）：
+1. "今天下午三点" = ${timeContext.current_date}T15:00:00.000Z
+2. "明天上午九点" = ${timeContext.tomorrow_date}T09:00:00.000Z
+3. "今天晚上" = ${timeContext.current_date}T20:00:00.000Z
+4. "明天" 默认 = ${timeContext.tomorrow_date}T09:00:00.000Z
+5. "下周一" = 计算下周一的日期 + 09:00:00.000Z
+6. 相对时间要基于当前时间计算绝对时间
+
+对于每个待办事项，请智能提取以下信息：
 1. 任务描述（简洁明确）
-2. 优先级（高/中/低）
-3. 预估的截止时间或提醒时间（如果用户提到了时间）
-4. 类别（工作/学习/生活/健康/社交等）
+2. 优先级（高/中/低）- 基于紧急程度和用户语气
+3. 截止时间（due_time）- 准确解析用户提到的时间
+4. 提醒时间（reminder_time）- 智能设置提醒策略：
+   
+   提醒时间设置规则：
+   - 如果截止时间在今天：提醒时间 = 截止时间前30分钟
+   - 如果截止时间在明天：提醒时间 = 今天晚上8点
+   - 如果截止时间在本周内：提醒时间 = 前一天晚上8点
+   - 如果截止时间超过一周：提醒时间 = 前两天上午9点
+   - 紧急任务（high优先级）：提醒时间可以更早
+
+5. 类别（学习/工作/生活/健康/社交等）
+
+示例分析：
+- "今天下午三点要交作业" 
+  → due_time: ${timeContext.current_date}T15:00:00.000Z
+  → reminder_time: ${timeContext.current_date}T14:30:00.000Z（提前30分钟）
+- "明天早上开会"
+  → due_time: ${timeContext.tomorrow_date}T09:00:00.000Z  
+  → reminder_time: ${timeContext.current_date}T20:00:00.000Z（今晚8点提醒）
 
 请以JSON格式返回结果：
 {
@@ -220,19 +314,15 @@ Please return results in JSON format:
             "title": "任务标题",
             "description": "详细描述",
             "priority": "high/medium/low",
-            "due_time": "ISO时间格式或null",
+            "due_time": "YYYY-MM-DDTHH:MM:SS.000Z或null",
             "category": "类别",
-            "reminder_time": "提醒时间的ISO格式或null"
+            "reminder_time": "YYYY-MM-DDTHH:MM:SS.000Z或null"
         }
     ],
     "total_count": 数量
 }
 
-注意：
-- 如果没有发现任何待办事项，返回空数组
-- 时间相关的信息要尽可能准确，如果用户说"明天"，请计算出具体日期
-- 优先级基于用户的语气和紧急程度判断
-- 只提取明确的行动项目，不要包含已经完成的事情
+注意：必须严格按照时间解析规则计算时间，所有时间使用ISO 8601格式。
                 `;
             } else {
                 prompt = `
@@ -240,13 +330,26 @@ Please extract todo items from the following user input:
 
 User input: ${userInput}
 
+Current time context:
+- Current datetime: ${timeContext.current_datetime}
+- Current date: ${timeContext.current_date}
+- Current time: ${timeContext.current_time}
+- Current weekday: ${timeContext.current_weekday}
+- Tomorrow date: ${timeContext.tomorrow_date}
+- Next week same day: ${timeContext.next_week_date}
+
 Please identify all explicit or implicit tasks, plans, appointments, etc. that require user's follow-up actions.
 
-For each todo item, please extract the following information:
+For each todo item, please intelligently extract the following information:
 1. Task description (concise and clear)
-2. Priority (high/medium/low)
-3. Estimated due time or reminder time (if user mentioned time)
-4. Category (work/study/life/health/social, etc.)
+2. Priority (high/medium/low) - based on user's tone and urgency
+3. Due time (due_time) - if user mentions specific time, calculate accurate ISO format time
+4. Reminder time (reminder_time) - intelligently set reminder time:
+   - If there's a clear due time, reminder should be before the due time
+   - If user says "tomorrow", set reminder to tomorrow 8:00 AM
+   - If user says "next week", set reminder to next Monday 9:00 AM
+   - For urgent tasks, reminder can be set earlier
+5. Category (work/study/life/health/social, etc.)
 
 Please return results in JSON format:
 {
@@ -255,19 +358,15 @@ Please return results in JSON format:
             "title": "task title",
             "description": "detailed description",
             "priority": "high/medium/low",
-            "due_time": "ISO time format or null",
+            "due_time": "YYYY-MM-DDTHH:MM:SS.000Z or null",
             "category": "category",
-            "reminder_time": "reminder time in ISO format or null"
+            "reminder_time": "YYYY-MM-DDTHH:MM:SS.000Z or null"
         }
     ],
     "total_count": number
 }
 
-Notes:
-- If no todo items are found, return empty array
-- Time-related information should be as accurate as possible, if user says "tomorrow", please calculate the specific date
-- Priority based on user's tone and urgency judgment
-- Only extract clear action items, don't include completed things
+Notes: All times must use ISO 8601 format, reminder time should be set reasonably.
                 `;
             }
 

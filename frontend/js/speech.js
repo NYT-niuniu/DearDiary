@@ -345,9 +345,11 @@ class SpeechManager {
         this.updateStatus(window.i18n ? window.i18n.t('listening') : 'Listening... please speak');
         this.showStopButton();
         
-        // 清空之前的转录文本
+        // 清空之前的转录文本并临时隐藏placeholder
         if (this.elements.transcribedText) {
-            this.elements.transcribedText.textContent = '';
+            this.elements.transcribedText.value = '';
+            // 添加录音中的CSS类来隐藏placeholder
+            this.elements.transcribedText.classList.add('recording');
         }
     }
     
@@ -357,6 +359,11 @@ class SpeechManager {
     handleEnd() {
         this.updateStatus(window.i18n ? window.i18n.t('recording_ended') : 'Recording ended');
         this.showStartButton();
+        
+        // 恢复placeholder显示（如果没有内容的话）
+        if (this.elements.transcribedText) {
+            this.elements.transcribedText.classList.remove('recording');
+        }
         
         // 将最终结果复制到文本输入框
         const finalText = this.speechService.getFinalTranscript();
@@ -379,7 +386,7 @@ class SpeechManager {
      */
     handleResult(transcript) {
         if (this.elements.transcribedText) {
-            this.elements.transcribedText.textContent = transcript;
+            this.elements.transcribedText.value = transcript;
         }
         
         // 更新语音处理按钮状态
@@ -396,8 +403,8 @@ class SpeechManager {
     handleInterimResult(transcript) {
         if (this.elements.transcribedText) {
             const finalText = this.speechService.getFinalTranscript();
-            this.elements.transcribedText.innerHTML = 
-                finalText + '<span style="color: #666;">' + transcript + '</span>';
+            // 对于textarea，只显示文本内容，不使用HTML
+            this.elements.transcribedText.value = finalText + transcript;
         }
     }
     
