@@ -133,8 +133,8 @@ class ReminderService {
     async sendTestReminder() {
         const testTodo = {
             id: 0,
-            title: '测试通知系统',
-            description: '测试Dear Diary提醒功能是否正常工作',
+            title: 'This is a test reminder',
+            description: 'Testing Dear Diary reminder functionality',
             priority: 'medium',
             due_time: new Date().toISOString(),
             category: 'test'
